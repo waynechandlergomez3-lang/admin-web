@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import api, { setAuthToken } from './services/api'
 import { initSocket, getSocket } from './services/socket'
+import { handleApiError } from './utils/errorHandler'
 import Login from './Login'
+import ConnectionStatus from './components/ConnectionStatus'
 import MapView from './components/MapView'
 import UsersList from './components/UsersList'
 import AssignModal from './components/AssignModal'
@@ -33,7 +35,9 @@ export default function App(){
       setUsers(u.data || [])
       setEvacCenters(v.data || [])
     }catch(err){
-      console.error('fetchData', err)
+      const errorInfo = handleApiError(err, 'Data fetch')
+      console.error('fetchData failed:', errorInfo.message)
+      // You could show a toast notification here if needed
     }
   }
 
@@ -72,6 +76,7 @@ export default function App(){
         <div>
           <h1 className="text-2xl font-semibold">Sagipero Admin</h1>
           <p className="text-sm text-slate-500">Manage emergencies, responders and evacuation sites</p>
+          <ConnectionStatus />
         </div>
         <nav className="flex items-center gap-3">
           <button className={`px-3 py-1 rounded ${page==='dashboard'?'bg-slate-100':''}`} onClick={()=>setPage('dashboard')}>Dashboard</button>
