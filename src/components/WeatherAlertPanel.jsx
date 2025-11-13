@@ -41,6 +41,7 @@ export default function WeatherAlertPanel(){
   const [severity, setSeverity] = useState('MEDIUM')
   const [broadcastAll, setBroadcastAll] = useState(true)
   const [targetRoles, setTargetRoles] = useState(new Set())
+  const [customMessage, setCustomMessage] = useState('')
 
   useEffect(()=>{
     if(!mapRef.current){
@@ -254,7 +255,31 @@ export default function WeatherAlertPanel(){
               </div>
             </div>
 
-            <div className="text-xs text-slate-500">Note: Urgent alerts (HIGH/SEVERE) will be prefixed with an urgent marker and sent as high-priority pushes. iOS Critical Alerts require special Apple entitlements.</div>
+            <div className="flex flex-col gap-2">
+              <div className="text-xs text-slate-500">Note: Urgent alerts (HIGH/SEVERE) will be prefixed with an urgent marker and sent as high-priority pushes. iOS Critical Alerts require special Apple entitlements.</div>
+              <label className="flex flex-col">
+                <span className="text-sm">Custom message (optional)</span>
+                <textarea value={customMessage} onChange={(e)=>setCustomMessage(e.target.value)} className="mt-1 p-2 border rounded" rows={3} />
+              </label>
+
+              <div className="flex items-center gap-2">
+                <button className="px-3 py-1 bg-red-700 text-white rounded" onClick={()=>{
+                  // send an urgent severe broadcast using the custom message if provided
+                  const title = 'SEVERE WEATHER ALERT'
+                  const msg = customMessage || 'Immediate threat: seek shelter and follow evacuation orders.'
+                  setSeverity('SEVERE')
+                  setBroadcastAll(true)
+                  sendAlert({ title, daily: false, scope: 'now', startAt: new Date().toISOString(), endAt: null })
+                }}>Send URGENT (SEVERE)</button>
+
+                <button className="px-3 py-1 bg-orange-600 text-white rounded" onClick={()=>{
+                  // send a high-priority broadcast
+                  setSeverity('HIGH')
+                  setBroadcastAll(true)
+                  sendAlert({ title: 'HIGH WEATHER ALERT', daily: false })
+                }}>Send HIGH</button>
+              </div>
+            </div>
           </div>
         </div>
 
