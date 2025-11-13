@@ -47,23 +47,26 @@ export default function EvacCenters({ onCreated = ()=>{} }){
       <div className="divide-y max-h-64 overflow-auto">
         {loading && <div className="p-3 text-sm text-slate-500">Loading...</div>}
         {!loading && centers.map(c=> (
-          <div key={c.id} className="p-3 flex items-center justify-between">
-            <div>
-              <div className="font-medium">{c.name}</div>
-              <div className="text-xs text-slate-500">{c.location?.lat?.toFixed(4)}, {c.location?.lng?.toFixed(4)}</div>
-              {(() => {
-                const cap = c.capacity || 0
-                const occ = c.currentCount || 0
-                const pct = cap > 0 ? Math.round((occ / cap) * 100) : 0
-                let status = 'Available'
-                if (pct === 100) status = 'Full'
-                else if (pct >= 76) status = 'High'
-                else if (pct >= 50) status = 'Limited'
-                else status = 'Available'
-                return (
-                  <div className="text-xs text-slate-500">Capacity: {cap} • Occupied: {occ} • Available: {Math.max(0, cap - occ)} • {c.isActive ? 'Open' : 'Closed'} • {pct}% ({status})</div>
-                )
-              })()}
+          <div key={c.id} className={`p-3 flex items-center justify-between ${c.isActive ? '' : 'opacity-90'}`}>
+            <div className="flex items-start gap-3">
+              <span className={`w-3 h-3 rounded-full mt-1 ${c.isActive ? 'bg-green-500' : 'bg-gray-400'}`} />
+              <div>
+                <div className="font-medium">{c.name}</div>
+                <div className="text-xs text-slate-500">{c.location?.lat?.toFixed(4)}, {c.location?.lng?.toFixed(4)}</div>
+                {(() => {
+                  const cap = c.capacity || 0
+                  const occ = c.currentCount || 0
+                  const pct = cap > 0 ? Math.round((occ / cap) * 100) : 0
+                  let status = 'Available'
+                  if (pct === 100) status = 'Full'
+                  else if (pct >= 76) status = 'High'
+                  else if (pct >= 50) status = 'Limited'
+                  else status = 'Available'
+                  return (
+                    <div className="text-xs text-slate-500">Capacity: {cap} • Occupied: {occ} • Available: {Math.max(0, cap - occ)} • {pct}% ({status}) • <span className={`${c.isActive ? 'text-green-600' : 'text-gray-500'}`}>{c.isActive ? 'Open' : 'Closed'}</span></div>
+                  )
+                })()}
+              </div>
             </div>
             <div className="flex gap-2">
               <button className="px-3 py-1 rounded bg-slate-100" onClick={()=>navigator.clipboard.writeText(`${c.location?.lat},${c.location?.lng}`)}>Copy</button>
