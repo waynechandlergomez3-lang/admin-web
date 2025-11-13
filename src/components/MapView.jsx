@@ -14,7 +14,14 @@ export default function MapView({ emergencies = [], evacCenters = [], onAssign =
         const { lat, lng } = e.latlng
         const name = window.prompt('Create evac center name (optional)')
         if(name !== null){
-          onCreateEvac({ name: name || 'Evac Center', location: { lat, lng } })
+          // Provide minimal required fields (address and capacity) so backend validation passes
+          const payload = {
+            name: name || 'Evac Center',
+            address: `Lat:${lat.toFixed(5)} Lng:${lng.toFixed(5)}`,
+            capacity: 20,
+            location: { lat, lng }
+          }
+          onCreateEvac(payload)
         }
       })
     }
