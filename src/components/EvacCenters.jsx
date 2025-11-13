@@ -5,6 +5,8 @@ export default function EvacCenters({ onCreated = ()=>{} }){
   const [centers, setCenters] = useState([])
   const [loading, setLoading] = useState(false)
   const [showForm, setShowForm] = useState(false)
+  const [editingCenter, setEditingCenter] = useState(null)
+  const [editCount, setEditCount] = useState(0)
   const [form, setForm] = useState({ name: '', address: '', lat: '', lng: '', capacity: 0, contactNumber: '', facilities: '' })
 
   const load = async ()=>{
@@ -49,14 +51,23 @@ export default function EvacCenters({ onCreated = ()=>{} }){
             <div>
               <div className="font-medium">{c.name}</div>
               <div className="text-xs text-slate-500">{c.location?.lat?.toFixed(4)}, {c.location?.lng?.toFixed(4)}</div>
-              <div className="text-xs text-slate-500">Capacity: {c.capacity || 0} • Occupied: {c.currentCount || 0} • Available: {Math.max(0, (c.capacity||0) - (c.currentCount||0))} • {c.isActive ? 'Open' : 'Closed'}</div>
+              {(() => {
+                const cap = c.capacity || 0
+                const occ = c.currentCount || 0
+                const pct = cap > 0 ? Math.round((occ / cap) * 100) : 0
+                let status = 'Available'
+                if (pct === 100) status = 'Full'
+                else if (pct >= 76) status = 'High'
+                else if (pct >= 50) status = 'Limited'
+                else status = 'Available'
+                return (
+                  <div className="text-xs text-slate-500">Capacity: {cap} • Occupied: {occ} • Available: {Math.max(0, cap - occ)} • {c.isActive ? 'Open' : 'Closed'} • {pct}% ({status})</div>
+                )
+              })()}
             </div>
             <div className="flex gap-2">
               <button className="px-3 py-1 rounded bg-slate-100" onClick={()=>navigator.clipboard.writeText(`${c.location?.lat},${c.location?.lng}`)}>Copy</button>
-              <button className="px-3 py-1 rounded bg-yellow-200" onClick={async ()=>{
-                const newCap = window.prompt('New capacity', String(c.capacity || 0))
-                if(newCap !== null){ try{ await api.patch(`/evacuation-centers/${c.id}`, { capacity: Number(newCap) }); await load(); alert('Updated') }catch(e){ console.error(e); alert('Failed') } }
-              }}>Edit</button>
+              <button className="px-3 py-1 rounded bg-yellow-200" onClick={() => { setEditingCenter(c); setEditCount(c.currentCount || 0) }}>Edit</button>
               <button className="px-3 py-1 rounded bg-red-200" onClick={async ()=>{
                 const confirm = window.confirm(`Set ${c.name} to ${c.isActive? 'Closed' : 'Open'}?`)
                 if(!confirm) return
@@ -85,6 +96,31 @@ export default function EvacCenters({ onCreated = ()=>{} }){
             <button type="submit" className="px-3 py-1 bg-green-600 text-white rounded">Create</button>
           </div>
         </form>
+      )}
+
+      {/* Edit modal for updating occupied count */}
+      {editingCenter && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white rounded p-4 w-96">
+            <h4 className="text-lg font-semibold mb-2">Edit {editingCenter.name}</h4>
+            <div className="text-sm text-slate-600 mb-2">Capacity: {editingCenter.capacity || 0}</div>
+            <div className="mb-3">
+              <label className="block text-xs text-slate-600">Occupied</label>
+              <input type="number" value={editCount} onChange={(e)=>setEditCount(Number(e.target.value))} className="w-full p-2 border rounded" />
+            </div>
+            <div className="flex justify-end gap-2">
+              <button className="px-3 py-1 rounded bg-slate-100" onClick={()=>setEditingCenter(null)}>Cancel</button>
+              <button className="px-3 py-1 rounded bg-green-600 text-white" onClick={async ()=>{
+                try{
+                  await api.patch(`/evacuation-centers/${editingCenter.id}`, { currentCount: Number(editCount) })
+                  await load()
+                  setEditingCenter(null)
+                  alert('Updated')
+                }catch(e){ console.error(e); alert('Failed to update') }
+              }}>Save</button>
+            </div>
+          </div>
+        </div>
       )}
       <div className="mt-3 text-sm text-slate-500">Tip: click the map to create an evac center.</div>
     </div>
