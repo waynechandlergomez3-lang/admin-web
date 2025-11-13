@@ -16,10 +16,10 @@ export default function Reports(){
       if (date) qs.push(`date=${encodeURIComponent(date)}`)
       qs.push(`format=${encodeURIComponent(format)}`)
       const res = await api.get(`/reports/summary?${qs.join('&')}`)
-      if (format === 'csv') {
+      if (format === 'csv' || format === 'pdf') {
         const url = res.data?.url
         if (url) window.open(url, '_blank')
-        else toast.notify({ type: 'success', message: 'CSV ready' })
+        else toast.notify({ type: 'success', message: `${format.toUpperCase()} ready` })
       } else {
         setResult(res.data)
       }
@@ -38,8 +38,9 @@ export default function Reports(){
           <option value="annual">Annual</option>
         </select>
         <input type="date" value={date} onChange={(e)=>setDate(e.target.value)} className="px-2 py-1 border rounded" />
-        <button className="px-3 py-1 bg-blue-600 text-white rounded" onClick={()=>fetchReport('json')} disabled={loading}>{loading?'...':'View JSON'}</button>
-        <button className="px-3 py-1 bg-slate-100 rounded" onClick={()=>fetchReport('csv')} disabled={loading}>Download CSV</button>
+  <button className="px-3 py-1 bg-blue-600 text-white rounded" onClick={()=>fetchReport('json')} disabled={loading}>{loading?'...':'View JSON'}</button>
+  <button className="px-3 py-1 bg-slate-100 rounded" onClick={()=>fetchReport('csv')} disabled={loading}>Download CSV</button>
+  <button className="px-3 py-1 bg-slate-100 rounded" onClick={()=>fetchReport('pdf')} disabled={loading}>Download PDF</button>
       </div>
       {result && (
         <pre className="text-xs bg-slate-50 p-2 rounded max-h-96 overflow-auto">{JSON.stringify(result, null, 2)}</pre>
