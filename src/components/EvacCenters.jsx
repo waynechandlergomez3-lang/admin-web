@@ -108,11 +108,23 @@ export default function EvacCenters({ onCreated = ()=>{} }){
               <label className="block text-xs text-slate-600">Occupied</label>
               <input type="number" value={editCount} onChange={(e)=>setEditCount(Number(e.target.value))} className="w-full p-2 border rounded" />
             </div>
+            <div className="mb-3">
+              <label className="block text-xs text-slate-600">Status</label>
+              <div className="flex items-center gap-2 mt-1">
+                <select value={editingCenter.isActive ? 'open' : 'closed'} onChange={(e)=>{
+                  const val = e.target.value === 'open'
+                  setEditingCenter({...editingCenter, isActive: val})
+                }} className="p-2 border rounded w-full">
+                  <option value="open">Open</option>
+                  <option value="closed">Closed</option>
+                </select>
+              </div>
+            </div>
             <div className="flex justify-end gap-2">
               <button className="px-3 py-1 rounded bg-slate-100" onClick={()=>setEditingCenter(null)}>Cancel</button>
               <button className="px-3 py-1 rounded bg-green-600 text-white" onClick={async ()=>{
                 try{
-                  await api.patch(`/evacuation-centers/${editingCenter.id}`, { currentCount: Number(editCount) })
+                  await api.patch(`/evacuation-centers/${editingCenter.id}`, { currentCount: Number(editCount), isActive: Boolean(editingCenter.isActive) })
                   await load()
                   setEditingCenter(null)
                   alert('Updated')
