@@ -38,6 +38,9 @@ export default function WeatherAlertPanel(){
   const [selectedHours, setSelectedHours] = useState(new Set())
   const [loading, setLoading] = useState(false)
   const [alerts, setAlerts] = useState([])
+  const [severity, setSeverity] = useState('MEDIUM')
+  const [broadcastAll, setBroadcastAll] = useState(true)
+  const [targetRoles, setTargetRoles] = useState(new Set())
 
   useEffect(()=>{
     if(!mapRef.current){
@@ -183,6 +186,11 @@ export default function WeatherAlertPanel(){
         startAt: startAt,
         endAt: endAt
       }
+      // attach severity and targeting info from UI
+      payload.severity = severity
+      payload.broadcastAll = broadcastAll
+      if(!broadcastAll){ payload.targetRoles = Array.from(targetRoles) }
+
       await api.post('/weather-alerts', payload)
       alert('Weather alert sent')
       fetchAlerts()
@@ -200,17 +208,53 @@ export default function WeatherAlertPanel(){
         <div>
           <div id="weather-map" style={{ width: '100%', height: 420, borderRadius: 8 }} />
           <div className="mt-2 text-sm text-slate-500">Drag on the map to select an area (simple rectangle). Forecast auto-loads for Hagonoy on page open.</div>
-          <div className="flex gap-2 mt-3">
-            <button className="px-3 py-1 bg-sky-600 text-white rounded" onClick={loadHourly} disabled={loading}>{loading ? 'Loading...' : 'Reload Forecast'}</button>
-            <button className="px-3 py-1 bg-emerald-600 text-white rounded" onClick={()=>{
-              const r = computeRange('today')
-              sendAlert({ title: 'Weather alert — Today', scope: 'today', startAt: r.start, endAt: r.end })
-            }}>Send Today</button>
-            <button className="px-3 py-1 bg-fuchsia-600 text-white rounded" onClick={()=>{
-              const r = computeRange('week')
-              sendAlert({ title: 'Weather alert — Week', scope: 'week', startAt: r.start, endAt: r.end })
-            }}>Send Week</button>
-            <button className="px-3 py-1 bg-gray-600 text-white rounded" onClick={toggleWeatherOverlay}>Toggle Weather Overlay</button>
+          <div className="flex flex-col gap-3 mt-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <button className="px-3 py-1 bg-sky-600 text-white rounded" onClick={loadHourly} disabled={loading}>{loading ? 'Loading...' : 'Reload Forecast'}</button>
+              <button className="px-3 py-1 bg-emerald-600 text-white rounded" onClick={()=>{
+                const r = computeRange('today')
+                sendAlert({ title: 'Weather alert — Today', scope: 'today', startAt: r.start, endAt: r.end })
+              }}>Send Today</button>
+              <button className="px-3 py-1 bg-fuchsia-600 text-white rounded" onClick={()=>{
+                const r = computeRange('week')
+                sendAlert({ title: 'Weather alert — Week', scope: 'week', startAt: r.start, endAt: r.end })
+              }}>Send Week</button>
+              <button className="px-3 py-1 bg-gray-600 text-white rounded" onClick={toggleWeatherOverlay}>Toggle Weather Overlay</button>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-4">
+              <label className="flex items-center gap-2">
+                <span className="text-sm">Severity</span>
+                <select value={severity} onChange={(e)=>setSeverity(e.target.value)} className="ml-2 px-2 py-1 border rounded">
+                  <option value="LOW">LOW</option>
+                  <option value="MEDIUM">MEDIUM</option>
+                  <option value="HIGH">HIGH</option>
+                  <option value="SEVERE">SEVERE</option>
+                </select>
+              </label>
+
+              <label className="flex items-center gap-2">
+                <input type="checkbox" checked={broadcastAll} onChange={(e)=>setBroadcastAll(e.target.checked)} />
+                <span className="text-sm">Broadcast to all users</span>
+              </label>
+
+              <div className="flex items-center gap-3">
+                <span className="text-sm">Target Roles:</span>
+                {['ADMIN','RESPONDER','RESIDENT'].map(r => (
+                  <label key={r} className="flex items-center gap-1 text-sm">
+                    <input type="checkbox" checked={targetRoles.has(r)} onChange={()=>{
+                      const s = new Set(targetRoles)
+                      if(s.has(r)) s.delete(r); else s.add(r)
+                      setTargetRoles(s)
+                      if(s.size > 0) setBroadcastAll(false)
+                    }} />
+                    <span className="px-1">{r}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="text-xs text-slate-500">Note: Urgent alerts (HIGH/SEVERE) will be prefixed with an urgent marker and sent as high-priority pushes. iOS Critical Alerts require special Apple entitlements.</div>
           </div>
         </div>
 
