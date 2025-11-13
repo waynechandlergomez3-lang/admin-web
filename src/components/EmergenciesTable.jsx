@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import api from '../services/api'
+import toast from '../services/toast'
 import EmergencyHistoryModal from './EmergencyHistoryModal'
 
 export default function EmergenciesTable({ emergencies = [], onOpenAssign = ()=>{}, onRefresh = ()=>{} }){
@@ -34,6 +35,13 @@ export default function EmergenciesTable({ emergencies = [], onOpenAssign = ()=>
                   <div className="flex gap-2">
                     <button className="px-3 py-1 bg-blue-600 text-white rounded" onClick={()=>onOpenAssign(e)}>Assign</button>
                     <button className="px-3 py-1 bg-slate-100 rounded" onClick={()=>setHistoryId(e.id)}>History</button>
+                    <button className="px-3 py-1 bg-red-600 text-white rounded" onClick={async ()=>{
+                      try{
+                        await api.put(`/emergencies/${e.id}/mark-fraud`)
+                        toast.notify({ type: 'success', message: 'Marked as fraud' })
+                        await onRefresh()
+                      }catch(err){ console.error(err); toast.notify({ type: 'error', message: 'Failed to mark fraud' }) }
+                    }}>Mark Fraud</button>
                   </div>
                 </td>
               </tr>
