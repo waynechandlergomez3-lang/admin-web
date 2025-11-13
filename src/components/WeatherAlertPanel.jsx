@@ -179,7 +179,7 @@ export default function WeatherAlertPanel(){
     try{
       const payload = {
         title,
-        message: daily ? 'Daily forecast alert' : 'Hourly forecast alert',
+        message: customMessage && customMessage.trim().length ? customMessage : (daily ? 'Daily forecast alert' : 'Hourly forecast alert'),
         area: areaBounds ? { nw: areaBounds.getNorthWest(), se: areaBounds.getSouthEast() } : null,
         hourlyIndexes: daily ? null : Array.from(selectedHours),
         daily: !!daily,
