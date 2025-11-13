@@ -15,11 +15,32 @@ export default function Reports(){
       qs.push(`period=${encodeURIComponent(period)}`)
       if (date) qs.push(`date=${encodeURIComponent(date)}`)
       qs.push(`format=${encodeURIComponent(format)}`)
-      const res = await api.get(`/reports/summary?${qs.join('&')}`)
+      // For CSV/PDF request as blob so we can handle direct streamed responses
+      const res = await api.get(`/reports/summary?${qs.join('&')}`, (format === 'csv' || format === 'pdf') ? { responseType: 'blob' } : undefined)
+
       if (format === 'csv' || format === 'pdf') {
-        const url = res.data?.url
-        if (url) window.open(url, '_blank')
-        else toast.notify({ type: 'success', message: `${format.toUpperCase()} ready` })
+        const contentType = (res.headers && res.headers['content-type']) || ''
+
+        // If server returned JSON (e.g., { url }), parse blob -> text -> json
+        if (contentType.includes('application/json')) {
+          const text = await res.data.text()
+          try {
+            const parsed = JSON.parse(text)
+            const url = parsed?.url
+            if (url) window.open(url, '_blank')
+            else toast.notify({ type: 'success', message: `${format.toUpperCase()} ready` })
+          } catch (err) {
+            console.error('Failed to parse JSON blob from report response', err)
+            toast.notify({ type: 'error', message: 'Failed to fetch report' })
+          }
+        } else {
+          // Assume the response is the file blob (pdf/csv)
+          const blob = res.data
+          const blobUrl = URL.createObjectURL(blob)
+          window.open(blobUrl, '_blank')
+          // Optionally revoke after a while
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 60 * 1000)
+        }
       } else {
         setResult(res.data)
       }
