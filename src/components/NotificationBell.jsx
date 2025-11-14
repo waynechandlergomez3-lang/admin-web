@@ -8,8 +8,8 @@ export default function NotificationBell(){
   const [unread, setUnread] = useState(0)
   const [open, setOpen] = useState(false)
   const [composeOpen, setComposeOpen] = useState(false)
-  const [composeUser, setComposeUser] = useState('')
-  const [composeRole, setComposeRole] = useState('')
+  // composeRole fixed to RESPONDER per admin request
+  const [composeRole, setComposeRole] = useState('RESPONDER')
   const [composeTitle, setComposeTitle] = useState('')
   const [composeMessage, setComposeMessage] = useState('')
 
@@ -53,10 +53,7 @@ export default function NotificationBell(){
   const submitCompose = async () => {
     try{
       if(!composeTitle || !composeMessage){ toast.notify({ type: 'error', message: 'Title and message required' }); return }
-      if(composeUser) {
-        await api.post('/notifications', { userId: composeUser, title: composeTitle, message: composeMessage })
-        toast.notify({ type: 'success', message: 'Notification sent to user' })
-      } else if (composeRole && composeRole !== 'ALL') {
+      if (composeRole && composeRole !== 'ALL') {
         await api.post('/notifications/send', { role: composeRole, title: composeTitle, message: composeMessage })
         toast.notify({ type: 'success', message: `Notification sent to role ${composeRole}` })
       } else {
@@ -67,7 +64,6 @@ export default function NotificationBell(){
       setComposeOpen(false)
       setComposeTitle('')
       setComposeMessage('')
-      setComposeUser('')
       setComposeRole('')
     }catch(e){ console.error('compose failed', e); toast.notify({ type: 'error', message: 'Failed to send notification' }) }
   }
@@ -112,14 +108,7 @@ export default function NotificationBell(){
           <div className="relative bg-white rounded-lg shadow p-4 w-full max-w-lg">
             <h3 className="font-semibold mb-2">Compose Notification</h3>
             <div className="space-y-2">
-              <input placeholder="User ID (leave blank for role/broadcast)" value={composeUser} onChange={e=>setComposeUser(e.target.value)} className="w-full border rounded px-2 py-1" />
-              <select value={composeRole} onChange={e=>setComposeRole(e.target.value)} className="w-full border rounded px-2 py-1">
-                <option value="">Select role (optional)</option>
-                <option value="ALL">All</option>
-                <option value="ADMIN">Admin</option>
-                <option value="RESPONDER">Responder</option>
-                <option value="RESIDENT">Resident</option>
-              </select>
+              <div className="w-full border rounded px-2 py-2 text-sm text-slate-700">Send to: <strong>Responders</strong></div>
               <input placeholder="Title" value={composeTitle} onChange={e=>setComposeTitle(e.target.value)} className="w-full border rounded px-2 py-1" />
               <textarea placeholder="Message" value={composeMessage} onChange={e=>setComposeMessage(e.target.value)} className="w-full border rounded px-2 py-1" rows={4} />
             </div>
