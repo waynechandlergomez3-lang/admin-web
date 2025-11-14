@@ -32,7 +32,7 @@ export default function Dashboard({ emergencies = [], users = [], evacCenters = 
   const totalEmergencies = emergencies.length
   const activeEmergencies = emergencies.filter(e => e.status !== 'RESOLVED').length
   const inProgress = emergencies.filter(e => e.status === 'IN_PROGRESS').length
-  const highPriority = emergencies.filter(e => e.priority === 'high' || e.priority === 3).length
+  const highPriority = emergencies.filter(e => e.priority === 'high' || e.priority === 1).length
   const totalResponders = users.filter(u => u.role === 'RESPONDER').length
   const availableResponders = users.filter(u => u.role === 'RESPONDER' && u.responderStatus === 'AVAILABLE').length
   const vehicleUnavailable = users.filter(u => u.role === 'RESPONDER' && u.responderStatus === 'VEHICLE_UNAVAILABLE').length
@@ -69,9 +69,9 @@ export default function Dashboard({ emergencies = [], users = [], evacCenters = 
           <label className="text-sm">Priority:</label>
           <select value={priorityFilter} onChange={(e)=>setPriorityFilter(e.target.value)} className="px-2 py-1 border rounded">
             <option value="ALL">All</option>
-            <option value="3">High (3)</option>
+            <option value="1">High (1)</option>
             <option value="2">Medium (2)</option>
-            <option value="1">Low (1)</option>
+            <option value="3">Low (3)</option>
           </select>
           <label className="text-sm">Status:</label>
           <select value={statusFilter} onChange={(e)=>setStatusFilter(e.target.value)} className="px-2 py-1 border rounded">
