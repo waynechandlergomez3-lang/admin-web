@@ -20,17 +20,27 @@ export default function EmergenciesTable({ emergencies = [], onOpenAssign = ()=>
           <thead className="bg-slate-50">
             <tr>
               <th className="text-left p-2">ID</th>
+              <th className="text-left p-2">Reporter</th>
               <th className="text-left p-2">Type</th>
               <th className="text-left p-2">Priority</th>
               <th className="text-left p-2">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {emergencies.map(e=> (
+            {emergencies.slice().sort((a,b)=> (b.priority||0) - (a.priority||0)).map(e=> (
               <tr key={e.id} className="hover:bg-slate-50">
                 <td className="p-2 font-mono text-xs">{String(e.id).slice(0,8)}</td>
+                <td className="p-2">{e.userName || e.user_name || e.userId || 'Unknown'}</td>
                 <td className="p-2">{e.type}</td>
-                <td className="p-2"><span className={`px-2 py-1 rounded text-xs ${e.priority==='high'?'bg-red-600 text-white':e.priority==='medium'?'bg-yellow-400 text-white':'bg-blue-600 text-white'}`}>{e.priority||'-'}</span></td>
+                <td className="p-2">
+                  {(() => {
+                    const p = Number(e.priority || 0);
+                    if (p === 3) return <span className="px-2 py-1 rounded text-xs bg-red-600 text-white">High</span>
+                    if (p === 2) return <span className="px-2 py-1 rounded text-xs bg-yellow-400 text-white">Medium</span>
+                    if (p === 1) return <span className="px-2 py-1 rounded text-xs bg-blue-600 text-white">Low</span>
+                    return <span className="px-2 py-1 rounded text-xs bg-slate-300 text-slate-700">-</span>
+                  })()}
+                </td>
                 <td className="p-2">
                   <div className="flex gap-2">
                     <button className="px-3 py-1 bg-blue-600 text-white rounded" onClick={()=>onOpenAssign(e)}>Assign</button>
