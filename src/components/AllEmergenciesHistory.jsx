@@ -347,9 +347,9 @@ export default function AllEmergenciesHistory() {
                                   try {
                                     const p = r.last_event_payload || {}
                                     switch((r.last_event_type||'').toUpperCase()){
-                                      case 'CREATED': return <div className="text-xs">Reported by <span className="font-medium">{p.user?.name || p.userId || '-'}</span></div>
-                                      case 'ASSIGNED': return <div className="text-xs">Assigned to <span className="font-medium">{p.responderName || p.responderId || '-'}</span></div>
-                                      case 'ARRIVED': return <div className="text-xs">Arrived — <span className="font-medium">{p.responderName || p.responderId || '-'}</span></div>
+                                      case 'CREATED': return <div className="text-xs">Reported by <span className="font-medium">{p.user?.name || '-'}</span></div>
+                                      case 'ASSIGNED': return <div className="text-xs">Assigned to <span className="font-medium">{p.responderName || '-'}</span></div>
+                                      case 'ARRIVED': return <div className="text-xs">Arrived — <span className="font-medium">{p.responderName || '-'}</span></div>
                                       case 'RESPONDER_LOCATION': return <div className="text-xs">Location update — {p.location ? `${p.location.lat?.toFixed(4)}, ${p.location.lng?.toFixed(4)}` : (p.lat ? `${p.lat},${p.lng}` : '-')}</div>
                                       case 'RESOLVED': return <div className="text-xs">Resolved</div>
                                       default: return <div className="text-xs">{typeof p === 'string' ? p : JSON.stringify(p)}</div>

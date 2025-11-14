@@ -96,7 +96,7 @@ export default function Dashboard({ emergencies = [], users = [], evacCenters = 
                   <div className="text-xs text-slate-400">{new Date(e.createdAt).toLocaleString()}</div>
                 </div>
                 <div className="text-sm text-slate-600 mt-1">{e.description || '—'}</div>
-                <div className="text-xs text-slate-500 mt-2">Resident: <span className="font-medium">{e.user?.name || e.userId}</span> • Responder: <span className="font-medium">{e.responder?.name || e.responderId || '-'}</span></div>
+                <div className="text-xs text-slate-500 mt-2">Resident: <span className="font-medium">{e.user?.name || '-'}</span> • Responder: <span className="font-medium">{e.responder?.name || '-'}</span></div>
               </div>
 
               <div className="flex flex-col items-end gap-2">

@@ -30,7 +30,7 @@ export default function EmergenciesTable({ emergencies = [], onOpenAssign = ()=>
             {emergencies.slice().sort((a,b)=> (b.priority||0) - (a.priority||0)).map(e=> (
               <tr key={e.id} className="hover:bg-slate-50">
                 <td className="p-2 font-mono text-xs">{String(e.id).slice(0,8)}</td>
-                <td className="p-2">{e.userName || e.user_name || e.userId || 'Unknown'}</td>
+                <td className="p-2">{e.user?.name || 'Unknown'}</td>
                 <td className="p-2">{e.type}</td>
                 <td className="p-2">
                   {(() => {
