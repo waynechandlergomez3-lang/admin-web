@@ -4,8 +4,8 @@ import { initSocket } from './services/socket'
 import { API_BASE } from './services/config'
 
 export default function Login({ onLogin }){
-  const [email, setEmail] = useState('admin@sagipero.local')
-  const [password, setPassword] = useState('adminpassword')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [retryCount, setRetryCount] = useState(0)
