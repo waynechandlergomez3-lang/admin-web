@@ -42,12 +42,12 @@ export default function Dashboard({ emergencies = [], users = [], vehicles = [],
     <div className="p-3 rounded-md bg-slate-700 text-white w-11 h-11 flex items-center justify-center">{children}</div>
   )
 
-  const card = (title, value, subtitle, IconElem, accent = 'bg-slate-800') => (
-    <div className="flex-1 bg-slate-900 rounded-xl shadow-lg p-4 flex items-center gap-4 border border-slate-700 hover:border-slate-600 hover:shadow-xl transition-all">
+  const card = (title, value, subtitle, IconElem, accent = 'bg-slate-100') => (
+    <div className="flex-1 bg-white rounded-xl shadow p-4 flex items-center gap-4 border border-slate-200 hover:bg-slate-50 hover:shadow-md transition-all">
       <div className={`p-3 rounded-md ${accent} text-white`}>{IconElem}</div>
       <div>
-        <div className="text-sm text-slate-400">{title}</div>
-        <div className="text-2xl font-bold text-white">{value}</div>
+        <div className="text-sm text-slate-500">{title}</div>
+        <div className="text-2xl font-bold text-slate-800">{value}</div>
         {subtitle && <div className="text-xs text-slate-500 mt-1">{subtitle}</div>}
       </div>
     </div>
@@ -155,10 +155,10 @@ export default function Dashboard({ emergencies = [], users = [], vehicles = [],
       </div>
 
       <div className="grid lg:grid-cols-2 gap-4">
-        <div className="bg-slate-900 rounded-xl shadow-lg p-4 border border-slate-700 hover:border-slate-600 transition-all">
+        <div className="bg-white rounded-xl shadow p-4 border border-slate-200 hover:bg-slate-50 transition-all">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-semibold text-white">Evacuation Centers</h3>
-            <div className="text-sm text-slate-400">{evacCenters.length} total</div>
+            <div className="text-sm text-slate-500">{evacCenters.length} total</div>
           </div>
 
           <ul className="space-y-3 max-h-72 overflow-auto">
@@ -169,9 +169,9 @@ export default function Dashboard({ emergencies = [], users = [], vehicles = [],
               const available = Math.max(0, cap - occ)
               const statusOpen = Boolean(c.isActive)
               return (
-                <li key={c.id} className="p-3 bg-slate-800 rounded-lg hover:bg-slate-800/90 transition-colors border border-slate-700">
+                <li key={c.id} className="p-3 bg-white rounded-lg hover:bg-slate-50 transition-colors border border-slate-200">
                   <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-md bg-rose-600 text-white w-12 h-12 flex items-center justify-center">
+                    <div className="p-2 rounded-md bg-rose-50 text-rose-600 w-12 h-12 flex items-center justify-center">
                       <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
                         <circle cx="12" cy="9" r="2.5" strokeWidth="1.5" />
@@ -181,20 +181,20 @@ export default function Dashboard({ emergencies = [], users = [], vehicles = [],
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="font-semibold text-white">{c.name}</div>
-                          <div className="text-xs text-slate-400">{c.address || `${c.location?.lat?.toFixed(4)}, ${c.location?.lng?.toFixed(4)}`}</div>
+                          <div className="font-semibold text-slate-800">{c.name}</div>
+                          <div className="text-xs text-slate-500">{c.address || `${c.location?.lat?.toFixed(4)}, ${c.location?.lng?.toFixed(4)}`}</div>
                         </div>
                         <div className="flex flex-col items-end">
-                          <div className={`text-xs font-semibold px-2 py-1 rounded ${statusOpen ? 'bg-green-700 text-green-100' : 'bg-gray-700 text-gray-200'}`}>{statusOpen ? 'Open' : 'Closed'}</div>
-                          <div className="text-xs text-slate-400 mt-2">{available} avail • {pct}%</div>
+                          <div className={`text-xs font-semibold px-2 py-1 rounded ${statusOpen ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>{statusOpen ? 'Open' : 'Closed'}</div>
+                          <div className="text-xs text-slate-500 mt-2">{available} avail • {pct}%</div>
                         </div>
                       </div>
 
                       <div className="mt-2">
-                        <div className="h-2 bg-slate-700 rounded overflow-hidden">
+                        <div className="h-2 bg-slate-100 rounded overflow-hidden">
                           <div className="h-2 bg-emerald-500" style={{ width: `${Math.min(100, pct)}%` }} />
                         </div>
-                        <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
+                        <div className="flex items-center gap-3 mt-2 text-xs text-slate-500">
                           <div className="flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2z"/></svg> {c.contactNumber || 'No contact'}</div>
                           <div className="flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M3 6h18M3 14h18M3 18h18"/></svg> {c.facilities ? (Array.isArray(c.facilities) ? c.facilities.join(', ') : String(c.facilities)) : 'Facilities unknown'}</div>
                         </div>
@@ -203,9 +203,9 @@ export default function Dashboard({ emergencies = [], users = [], vehicles = [],
                   </div>
 
                   <div className="mt-3 flex items-center justify-end gap-2">
-                    <button className="px-3 py-1 rounded bg-slate-100 text-sm" onClick={()=>navigator.clipboard.writeText(`${c.location?.lat},${c.location?.lng}`)}>Copy coords</button>
-                    <button className="px-3 py-1 rounded bg-yellow-200 text-sm" onClick={()=>{ window.location.hash = '#/evac'; window.dispatchEvent(new CustomEvent('openEvacEdit', { detail: { id: c.id } })) }}>Manage</button>
-                    <button className="px-3 py-1 rounded bg-red-200 text-sm" onClick={async ()=>{
+                    <button className="px-3 py-1 rounded bg-slate-50 text-sm border" onClick={()=>navigator.clipboard.writeText(`${c.location?.lat},${c.location?.lng}`)}>Copy coords</button>
+                    <button className="px-3 py-1 rounded bg-yellow-50 text-sm border" onClick={()=>{ window.location.hash = '#/evac'; window.dispatchEvent(new CustomEvent('openEvacEdit', { detail: { id: c.id } })) }}>Manage</button>
+                    <button className="px-3 py-1 rounded bg-red-50 text-sm border" onClick={async ()=>{
                       const confirmClose = window.confirm(`${c.name}: set to ${c.isActive ? 'Closed' : 'Open'}?`)
                       if(!confirmClose) return
                       try{
@@ -222,32 +222,32 @@ export default function Dashboard({ emergencies = [], users = [], vehicles = [],
         </div>
         <div className="space-y-4">
           {/* Fleet snapshot panel inside right column */}
-          <div className="bg-slate-900 rounded-xl shadow-lg p-4 border border-slate-700 hover:border-slate-600 transition-all">
+          <div className="bg-white rounded-xl shadow p-4 border border-slate-200 hover:bg-slate-50 transition-all">
             <div className="flex items-center justify-between mb-3">
-              <h4 className="font-semibold text-white">Fleet snapshot</h4>
-              <div className="text-sm text-slate-400">{(vehicles||[]).length} vehicles</div>
+              <h4 className="font-semibold text-slate-800">Vehicles snapshot</h4>
+              <div className="text-sm text-slate-500">{(vehicles||[]).length} vehicles</div>
             </div>
             <ul className="space-y-2 max-h-48 overflow-auto">
               {(vehicles||[]).slice(0,6).map(v => (
-                <li key={v.id} className="p-2 bg-slate-800 rounded flex items-center justify-between">
+                <li key={v.id} className="p-2 bg-white rounded flex items-center justify-between border border-slate-100">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded bg-slate-700 flex items-center justify-center text-white">
+                    <div className="w-9 h-9 rounded bg-slate-100 flex items-center justify-center text-slate-700">
                       {/* small icon */}
                       {(() => {
                         const t = (v.model || '').toLowerCase()
                         if(t.includes('ambul')) return <svg className="w-4 h-4 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 13v-4h2l2-3h8l2 3h2v4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                         if(t.includes('fire')) return <svg className="w-4 h-4 text-orange-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 13h14l2 3v3H3v-6z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                         if(t.includes('motor')) return <svg className="w-4 h-4 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12h3l2-3h6l2 3h3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                        return <svg className="w-4 h-4 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12h18" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        return <svg className="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12h18" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       })()}
                     </div>
                     <div>
-                      <div className="font-medium text-white">{v.plateNumber || '—'} <span className="text-xs text-slate-400">{v.model || 'Unknown'}</span></div>
-                      <div className="text-xs text-slate-400">{v.responder?.name || v.responderId || 'Unassigned'}</div>
+                      <div className="font-medium text-slate-800">{v.plateNumber || '—'} <span className="text-xs text-slate-400">{v.model || 'Unknown'}</span></div>
+                      <div className="text-xs text-slate-500">{v.responder?.name || v.responderId || 'Unassigned'}</div>
                     </div>
                   </div>
                   <div className="text-xs">
-                    <div className={`px-2 py-1 rounded text-xs ${v.active ? 'bg-emerald-700 text-emerald-100' : 'bg-gray-700 text-gray-300'}`}>{v.active ? 'Active' : 'Inactive'}</div>
+                    <div className={`px-2 py-1 rounded text-xs ${v.active ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600'}`}>{v.active ? 'Active' : 'Inactive'}</div>
                   </div>
                 </li>
               ))}
