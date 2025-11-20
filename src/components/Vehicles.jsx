@@ -10,20 +10,46 @@ export default function Vehicles(){
   const [modalData, setModalData] = useState({ id: null, responderId: '', plateNumber: '', model: '', color: '', active: true })
   const [saving, setSaving] = useState(false)
 
+  const fetchResponders = async () => {
+    try {
+      const rRes = await api.get('/users', { params: { role: 'RESPONDER' } })
+      setResponders(rRes.data || [])
+      return rRes.data || []
+    } catch (e) {
+      console.error('Failed to load responders', e)
+      toast.notify({ type: 'error', message: 'Failed to load responders' })
+      return []
+    }
+  }
+
+  const fetchVehicles = async () => {
+    try {
+      const vRes = await api.get('/vehicles')
+      setVehicles(vRes.data || [])
+    } catch (e) {
+      console.error('Failed to load vehicles', e)
+      toast.notify({ type: 'error', message: 'Failed to load vehicles' })
+    }
+  }
+
   const fetchAll = async () => {
     setLoading(true)
     try{
-      // backend should expose /vehicles and /users?role=RESPONDER
-      const [vRes, rRes] = await Promise.all([ api.get('/vehicles'), api.get('/users?role=RESPONDER') ])
-      setVehicles(vRes.data || [])
-      setResponders(rRes.data || [])
-    }catch(e){ console.error(e); toast.notify({ type: 'error', message: 'Failed to load vehicles' }) }
+      await Promise.all([ fetchVehicles(), fetchResponders() ])
+    }catch(e){ console.error(e); /* errors already handled in helpers */ }
     setLoading(false)
   }
 
   useEffect(()=>{ fetchAll() }, [])
 
-  const openCreate = () => { setModalData({ id: null, responderId: (responders[0]?.id||''), plateNumber: '', model: '', color: '', active: true }); setModalOpen(true) }
+  const openCreate = async () => {
+    // ensure we have responders before opening the modal so the default responder can be selected
+    if((responders||[]).length === 0){
+      await fetchResponders()
+    }
+    setModalData({ id: null, responderId: (responders[0]?.id||''), plateNumber: '', model: '', color: '', active: true })
+    setModalOpen(true)
+  }
   const openEdit = (v) => { setModalData({ id: v.id, responderId: v.responderId, plateNumber: v.plateNumber||'', model: v.model||'', color: v.color||'', active: !!v.active }); setModalOpen(true) }
 
   const save = async () => {
