@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import ArticlePanel from './ArticlePanel'
 
-export default function Dashboard({ emergencies = [], users = [], evacCenters = [], onOpenAssign = ()=>{} }) {
+export default function Dashboard({ emergencies = [], users = [], vehicles = [], evacCenters = [], onOpenAssign = ()=>{} }) {
   const [priorityFilter, setPriorityFilter] = useState('ALL')
   const [statusFilter, setStatusFilter] = useState('ALL')
   const [barangayFilter, setBarangayFilter] = useState('ALL')
@@ -139,6 +139,15 @@ export default function Dashboard({ emergencies = [], users = [], evacCenters = 
         {card('Active Emergencies', activeEmergencies, `${totalEmergencies} total`, <ChartIcon />, 'bg-red-900')}
         {card('In Progress', inProgress, 'Being handled by responders', <MapIconSvg />, 'bg-orange-900')}
         {card('Unassigned', unassignedEmergencies, 'Awaiting assignment', <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v9M6 12h12" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>, 'bg-yellow-900')}
+
+        {/* Vehicle summary card */}
+        {(() => {
+          const totalVehicles = (vehicles || []).length
+          const activeVehicles = (vehicles || []).filter(v => v.active).length
+          const assignedVehicles = (vehicles || []).filter(v => v.responderId).length
+          return card('Fleet', totalVehicles, `${activeVehicles} active • ${assignedVehicles} assigned`, <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 13h14l2 3v3H3v-6zM7 13V8h4v5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>, 'bg-sky-800')
+        })()}
+
         {card('Available Responders', availableResponders, `${totalResponders} total • ${vehicleUnavailable} vehicle unavailable`, <UsersIcon />, 'bg-emerald-900')}
       </div>
 
@@ -208,7 +217,40 @@ export default function Dashboard({ emergencies = [], users = [], evacCenters = 
             })}
           </ul>
         </div>
-        <div>
+        <div className="space-y-4">
+          {/* Fleet snapshot panel inside right column */}
+          <div className="bg-slate-900 rounded-xl shadow-lg p-4 border border-slate-700 hover:border-slate-600 transition-all">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-semibold text-white">Fleet snapshot</h4>
+              <div className="text-sm text-slate-400">{(vehicles||[]).length} vehicles</div>
+            </div>
+            <ul className="space-y-2 max-h-48 overflow-auto">
+              {(vehicles||[]).slice(0,6).map(v => (
+                <li key={v.id} className="p-2 bg-slate-800 rounded flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded bg-slate-700 flex items-center justify-center text-white">
+                      {/* small icon */}
+                      {(() => {
+                        const t = (v.model || '').toLowerCase()
+                        if(t.includes('ambul')) return <svg className="w-4 h-4 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 13v-4h2l2-3h8l2 3h2v4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        if(t.includes('fire')) return <svg className="w-4 h-4 text-orange-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 13h14l2 3v3H3v-6z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        if(t.includes('motor')) return <svg className="w-4 h-4 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12h3l2-3h6l2 3h3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        return <svg className="w-4 h-4 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12h18" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      })()}
+                    </div>
+                    <div>
+                      <div className="font-medium text-white">{v.plateNumber || '—'} <span className="text-xs text-slate-400">{v.model || 'Unknown'}</span></div>
+                      <div className="text-xs text-slate-400">{v.responder?.name || v.responderId || 'Unassigned'}</div>
+                    </div>
+                  </div>
+                  <div className="text-xs">
+                    <div className={`px-2 py-1 rounded text-xs ${v.active ? 'bg-emerald-700 text-emerald-100' : 'bg-gray-700 text-gray-300'}`}>{v.active ? 'Active' : 'Inactive'}</div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           <ArticlePanel />
         </div>
       </div>

@@ -27,6 +27,7 @@ export default function App(){
   const [page, setPage] = useState('dashboard')
   const [emergencies, setEmergencies] = useState([])
   const [users, setUsers] = useState([])
+  const [vehicles, setVehicles] = useState([])
   const [evacCenters, setEvacCenters] = useState([])
   const [assignOpen, setAssignOpen] = useState(false)
   const [selectedEmergency, setSelectedEmergency] = useState(null)
@@ -35,10 +36,11 @@ export default function App(){
 
   const fetchData = async () => {
     try{
-      const [e, u, v] = await Promise.all([ api.get('/emergencies'), api.get('/users'), api.get('/evacuation-centers') ])
+      const [e, u, ev, vs] = await Promise.all([ api.get('/emergencies'), api.get('/users'), api.get('/evacuation-centers'), api.get('/vehicles') ])
       setEmergencies(e.data || [])
       setUsers(u.data || [])
-      setEvacCenters(v.data || [])
+      setEvacCenters(ev.data || [])
+      setVehicles(vs.data || [])
     }catch(err){
       const errorInfo = handleApiError(err, 'Data fetch')
       console.error('fetchData failed:', errorInfo.message)
@@ -175,7 +177,7 @@ export default function App(){
             </div>
 
             <main className="space-y-6">
-              {page === 'dashboard' && <Dashboard emergencies={emergencies} users={users} evacCenters={evacCenters} onOpenAssign={openAssign} />}
+              {page === 'dashboard' && <Dashboard emergencies={emergencies} users={users} vehicles={vehicles} evacCenters={evacCenters} onOpenAssign={openAssign} />}
 
               {page === 'dashboard' && (
                 <div className="grid lg:grid-cols-[2fr,420px] gap-6">
