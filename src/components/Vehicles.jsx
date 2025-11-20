@@ -42,12 +42,24 @@ export default function Vehicles(){
 
   useEffect(()=>{ fetchAll() }, [])
 
+  // vehicle type choices shown in the modal dropdown
+  const VEHICLE_TYPES = [
+    'Ambulance',
+    'Fire Truck',
+    'Rescue Boat',
+    'Utility Vehicle',
+    'Motorcycle',
+    'Pickup Truck',
+    'Van',
+    'Other'
+  ]
+
   const openCreate = async () => {
     // ensure we have responders before opening the modal so the default responder can be selected
     if((responders||[]).length === 0){
       await fetchResponders()
     }
-    setModalData({ id: null, responderId: (responders[0]?.id||''), plateNumber: '', model: '', color: '', active: true })
+    setModalData({ id: null, responderId: (responders[0]?.id||''), plateNumber: '', model: VEHICLE_TYPES[0], color: '', active: true })
     setModalOpen(true)
   }
   const openEdit = (v) => { setModalData({ id: v.id, responderId: v.responderId, plateNumber: v.plateNumber||'', model: v.model||'', color: v.color||'', active: !!v.active }); setModalOpen(true) }
@@ -85,7 +97,7 @@ export default function Vehicles(){
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50"><tr><th className="p-2">ID</th><th className="p-2">Responder</th><th className="p-2">Plate</th><th className="p-2">Model</th><th className="p-2">Color</th><th className="p-2">Active</th><th className="p-2">Action</th></tr></thead>
+          <thead className="bg-slate-50"><tr><th className="p-2">ID</th><th className="p-2">Responder</th><th className="p-2">Plate</th><th className="p-2">Vehicle Type</th><th className="p-2">Color</th><th className="p-2">Active</th><th className="p-2">Action</th></tr></thead>
           <tbody>
             {vehicles.map(v => (
               <tr key={v.id} className="hover:bg-slate-50">
@@ -111,7 +123,7 @@ export default function Vehicles(){
         <div className="fixed inset-0 z-50">
           <div className="fixed inset-0 bg-black/40" onClick={()=>setModalOpen(false)} />
           <div className="fixed inset-0 flex items-center justify-center p-4">
-            <div className="w-full max-w-md bg-white rounded-xl shadow p-4">
+              <div className="w-full max-w-md bg-white rounded-xl shadow p-4">
               <div className="flex items-center justify-between mb-4">
                 <div className="text-lg font-semibold">{modalData.id ? 'Edit Vehicle' : 'Create Vehicle'}</div>
                 <button className="p-2 rounded" onClick={()=>setModalOpen(false)}>✕</button>
@@ -129,8 +141,10 @@ export default function Vehicles(){
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="text-xs">Model</label>
-                    <input className="w-full p-2 border rounded" value={modalData.model} onChange={(e)=>setModalData({...modalData, model: e.target.value})} />
+                    <label className="text-xs">Vehicle Type</label>
+                    <select className="w-full p-2 border rounded" value={modalData.model} onChange={(e)=>setModalData({...modalData, model: e.target.value})}>
+                      {VEHICLE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                    </select>
                   </div>
                   <div>
                     <label className="text-xs">Color</label>

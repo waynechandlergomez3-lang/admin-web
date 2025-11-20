@@ -312,9 +312,11 @@ export default function UsersList({ users = [], onRefresh = ()=>{}, onEdit = nul
                       <input className="col-span-4 p-2 border rounded" placeholder="Plate number" value={v.plateNumber || ''} onChange={(e)=>{
                         const copy = [...(modalData.vehicles||[])]; copy[idx] = {...copy[idx], plateNumber: e.target.value}; setModalData({...modalData, vehicles: copy})
                       }} />
-                      <input className="col-span-4 p-2 border rounded" placeholder="Model / Type" value={v.model || ''} onChange={(e)=>{
+                      <select className="col-span-4 p-2 border rounded" value={v.model || ''} onChange={(e)=>{
                         const copy = [...(modalData.vehicles||[])]; copy[idx] = {...copy[idx], model: e.target.value}; setModalData({...modalData, vehicles: copy})
-                      }} />
+                      }}>
+                        {VEHICLE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                      </select>
                       <input className="col-span-2 p-2 border rounded" placeholder="Color" value={v.color || ''} onChange={(e)=>{
                         const copy = [...(modalData.vehicles||[])]; copy[idx] = {...copy[idx], color: e.target.value}; setModalData({...modalData, vehicles: copy})
                       }} />
@@ -333,7 +335,7 @@ export default function UsersList({ users = [], onRefresh = ()=>{}, onEdit = nul
                   ))}
                   <div className="flex gap-2">
                     <button className="px-3 py-1 bg-slate-100 rounded" onClick={()=>{
-                      const copy = [...(modalData.vehicles||[])]; copy.push({ plateNumber: '', model: '', color: '', active: true }); setModalData({...modalData, vehicles: copy})
+                      const copy = [...(modalData.vehicles||[])]; copy.push({ plateNumber: '', model: VEHICLE_TYPES[0], color: '', active: true }); setModalData({...modalData, vehicles: copy})
                     }}>Add Vehicle</button>
                     <div className="text-sm text-slate-500 self-center">Vehicles are stored with responder profile and can be assigned to emergencies later.</div>
                   </div>
@@ -354,5 +356,8 @@ export default function UsersList({ users = [], onRefresh = ()=>{}, onEdit = nul
     </div>
   )
 }
+
+// vehicle types used in user modal for vehicle entries
+const VEHICLE_TYPES = [ 'Ambulance', 'Fire Truck', 'Rescue Boat', 'Utility Vehicle', 'Motorcycle', 'Pickup Truck', 'Van', 'Other' ]
 
 // Modal markup appended at file bottom (keeps render simple)
