@@ -54,6 +54,49 @@ export default function Vehicles(){
     'Other'
   ]
 
+  const getVehicleIcon = (type, size = 18) => {
+    const common = { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', xmlns: 'http://www.w3.org/2000/svg' }
+    switch((type||'').toLowerCase()){
+      case 'ambulance':
+        return (
+          <svg {...common} className="inline-block mr-2 text-red-600"><path d="M3 13v-4h2l2-3h8l2 3h2v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M7 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm10 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        )
+      case 'fire truck':
+        return (
+          <svg {...common} className="inline-block mr-2 text-orange-600"><path d="M3 13h14l2 3v3H3v-6zM7 13V8h4v5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        )
+      case 'rescue boat':
+        return (
+          <svg {...common} className="inline-block mr-2 text-indigo-600"><path d="M21 15s-3-2-9-2-9 2-9 2 2 3 9 3 9-3 9-3zM5 12V6h14v6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        )
+      case 'motorcycle':
+        return (
+          <svg {...common} className="inline-block mr-2 text-sky-600"><path d="M3 12h3l2-3h6l2 3h3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><circle cx="6" cy="17" r="2" stroke="currentColor" strokeWidth="1.5"/><circle cx="18" cy="17" r="2" stroke="currentColor" strokeWidth="1.5"/></svg>
+        )
+      case 'pickup truck':
+      case 'van':
+      case 'utility vehicle':
+        return (
+          <svg {...common} className="inline-block mr-2 text-emerald-600"><rect x="2" y="7" width="18" height="9" rx="2" stroke="currentColor" strokeWidth="1.5" fill="none"/><circle cx="7" cy="17" r="1" fill="currentColor"/><circle cx="17" cy="17" r="1" fill="currentColor"/></svg>
+        )
+      default:
+        return (
+          <svg {...common} className="inline-block mr-2 text-gray-600"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        )
+    }
+  }
+
+  const StatusBadge = ({ active }) => (
+    <span className={`inline-flex items-center gap-2 px-2 py-1 text-xs font-medium rounded-full ${active ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-700'}`}>
+      {active ? (
+        <svg className="w-3 h-3 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17l-5-5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+      ) : (
+        <svg className="w-3 h-3 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 6L6 18M6 6l12 12" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+      )}
+      {active ? 'Active' : 'Inactive'}
+    </span>
+  )
+
   const openCreate = async () => {
     // ensure we have responders before opening the modal so the default responder can be selected
     if((responders||[]).length === 0){
@@ -88,10 +131,19 @@ export default function Vehicles(){
   return (
     <div className="bg-white rounded-xl shadow p-4">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">Vehicles</h3>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-r from-sky-500 to-indigo-500 rounded-full flex items-center justify-center text-white text-lg font-bold">V</div>
+          <div>
+            <h3 className="text-lg font-semibold">Vehicles</h3>
+            <div className="text-xs text-slate-400">Fleet and responder vehicles</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
           <div className="text-sm text-slate-500">{vehicles.length} total</div>
-          <button className="px-3 py-1 bg-sky-600 text-white rounded" onClick={openCreate}>Create Vehicle</button>
+          <button className="px-3 py-1 bg-white border border-sky-600 text-sky-600 rounded shadow-sm hover:bg-sky-50 flex items-center gap-2" onClick={openCreate}>
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            Create
+          </button>
         </div>
       </div>
 
@@ -104,9 +156,9 @@ export default function Vehicles(){
                 <td className="p-2 font-mono text-xs">{String(v.id).slice(0,8)}</td>
                 <td className="p-2">{responders.find(r=>r.id===v.responderId)?.name || v.responderId}</td>
                 <td className="p-2">{v.plateNumber}</td>
-                <td className="p-2">{v.model}</td>
+                <td className="p-2">{getVehicleIcon(v.model)}{v.model}</td>
                 <td className="p-2">{v.color}</td>
-                <td className="p-2">{v.active ? 'Yes' : 'No'}</td>
+                <td className="p-2"><StatusBadge active={!!v.active} /></td>
                 <td className="p-2">
                   <div className="flex gap-2">
                     <button className="px-3 py-1 rounded bg-amber-100" onClick={()=>openEdit(v)}>Edit</button>
@@ -125,8 +177,16 @@ export default function Vehicles(){
           <div className="fixed inset-0 flex items-center justify-center p-4">
               <div className="w-full max-w-md bg-white rounded-xl shadow p-4">
               <div className="flex items-center justify-between mb-4">
-                <div className="text-lg font-semibold">{modalData.id ? 'Edit Vehicle' : 'Create Vehicle'}</div>
-                <button className="p-2 rounded" onClick={()=>setModalOpen(false)}>✕</button>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
+                    <svg className="w-5 h-5 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 13v-4h2l2-3h8l2 3h2v4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  </div>
+                  <div>
+                    <div className="text-lg font-semibold">{modalData.id ? 'Edit Vehicle' : 'Create Vehicle'}</div>
+                    <div className="text-xs text-slate-400">Assign to responder and provide vehicle details</div>
+                  </div>
+                </div>
+                <button className="p-2 rounded text-slate-500 hover:bg-slate-100" onClick={()=>setModalOpen(false)}>✕</button>
               </div>
               <div className="space-y-3">
                 <div>

@@ -163,13 +163,14 @@ export default function UsersList({ users = [], onRefresh = ()=>{}, onEdit = nul
                 <td className="p-2">{u.role}</td>
                 <td className="p-2">
                   {u.role === 'RESPONDER' ? (
-                    (() => {
-                      const raw = u.responderStatus
-                      const label = raw === 'ON_DUTY' ? 'ASSIGNED' : (raw || 'UNKNOWN')
-                      const cls = raw==='ON_DUTY' ? 'bg-red-600 text-white' : raw==='AVAILABLE' ? 'bg-green-600 text-white' : 'bg-gray-300 text-black'
-                      return <span className={`px-2 py-1 rounded text-xs ${cls}`}>{label}</span>
-                    })()
-                  ) : '-' }
+                      (() => {
+                        const raw = u.responderStatus
+                        const label = raw === 'ON_DUTY' ? 'ON DUTY' : raw === 'AVAILABLE' ? 'AVAILABLE' : raw === 'VEHICLE_UNAVAILABLE' ? 'NO VEHICLE' : (raw || 'UNKNOWN')
+                        const cls = raw==='ON_DUTY' ? 'bg-amber-100 text-amber-800' : raw==='AVAILABLE' ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-700'
+                        const icon = raw==='ON_DUTY' ? (<svg className="inline-block w-3 h-3 mr-1 text-amber-600" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>) : raw==='AVAILABLE' ? (<svg className="inline-block w-3 h-3 mr-1 text-emerald-600" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>) : (<svg className="inline-block w-3 h-3 mr-1 text-gray-500" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>)
+                        return <span className={`px-2 py-1 rounded text-xs inline-flex items-center ${cls}`}>{icon}{label}</span>
+                      })()
+                    ) : '-' }
                 </td>
                 {showVehicles && <td className="p-2">{Array.isArray(u.vehicles) ? u.vehicles.length : 0}</td>}
                 <td className="p-2">
