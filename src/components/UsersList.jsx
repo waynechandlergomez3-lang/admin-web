@@ -10,7 +10,7 @@ export default function UsersList({ users = [], onRefresh = ()=>{}, onEdit = nul
   const [modalMode, setModalMode] = useState('create') // 'create' | 'edit'
   const [modalLoading, setModalLoading] = useState(false)
   const [modalStep, setModalStep] = useState(1)
-  const [modalData, setModalData] = useState({ name: '', email: '', phone: '', barangay: '', role: 'RESIDENT', responderStatus: 'AVAILABLE', bloodType: '', emergencyContactName: '', emergencyContactPhone: '', emergencyContactRelation: '', medicalConditions: [], allergies: [] })
+  const [modalData, setModalData] = useState({ name: '', email: '', phone: '', barangay: '', role: 'RESIDENT', responderStatus: 'AVAILABLE', bloodType: '', emergencyContactName: '', emergencyContactPhone: '', emergencyContactRelation: '', medicalConditions: [], allergies: [], vehicles: [] })
 
   const barangays = useMemo(()=>{
     const s = new Set(); (users||[]).forEach(u=>{ if(u.barangay) s.add(u.barangay) }); return Array.from(s).sort()
@@ -25,10 +25,11 @@ export default function UsersList({ users = [], onRefresh = ()=>{}, onEdit = nul
       const u = r.data || {};
       // merge with the list item as a fallback for any missing fields
       const merged = { ...user, ...u };
-      // normalize array fields
-      merged.medicalConditions = Array.isArray(merged.medicalConditions) ? merged.medicalConditions : (merged.medicalConditions ? [merged.medicalConditions] : []);
-      merged.allergies = Array.isArray(merged.allergies) ? merged.allergies : (merged.allergies ? [merged.allergies] : []);
-      merged.specialCircumstances = Array.isArray(merged.specialCircumstances) ? merged.specialCircumstances : (merged.specialCircumstances ? [merged.specialCircumstances] : []);
+  // normalize array fields
+  merged.medicalConditions = Array.isArray(merged.medicalConditions) ? merged.medicalConditions : (merged.medicalConditions ? [merged.medicalConditions] : []);
+  merged.allergies = Array.isArray(merged.allergies) ? merged.allergies : (merged.allergies ? [merged.allergies] : []);
+  merged.specialCircumstances = Array.isArray(merged.specialCircumstances) ? merged.specialCircumstances : (merged.specialCircumstances ? [merged.specialCircumstances] : []);
+  merged.vehicles = Array.isArray(merged.vehicles) ? merged.vehicles : (merged.vehicles ? [merged.vehicles] : []);
 
       setModalStep(1)
       setModalData({
@@ -46,7 +47,8 @@ export default function UsersList({ users = [], onRefresh = ()=>{}, onEdit = nul
         emergencyContactRelation: merged.emergencyContactRelation || '',
         medicalConditions: merged.medicalConditions || [],
         allergies: merged.allergies || [],
-        specialCircumstances: merged.specialCircumstances || []
+        specialCircumstances: merged.specialCircumstances || [],
+        vehicles: merged.vehicles || []
       })
       setModalOpen(true)
     }).catch(err => {
@@ -67,7 +69,8 @@ export default function UsersList({ users = [], onRefresh = ()=>{}, onEdit = nul
         emergencyContactRelation: user.emergencyContactRelation || '',
         medicalConditions: user.medicalConditions || [],
         allergies: user.allergies || [],
-        specialCircumstances: user.specialCircumstances || []
+        specialCircumstances: user.specialCircumstances || [],
+        vehicles: user.vehicles || []
       })
       setModalOpen(true)
     })
@@ -101,7 +104,8 @@ export default function UsersList({ users = [], onRefresh = ()=>{}, onEdit = nul
       emergencyContactRelation: '',
       medicalConditions: [],
       allergies: [],
-      specialCircumstances: []
+      specialCircumstances: [],
+      vehicles: []
     })
     setModalOpen(true)
   }
@@ -138,7 +142,7 @@ export default function UsersList({ users = [], onRefresh = ()=>{}, onEdit = nul
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50"><tr><th className="p-2 text-left">ID</th><th className="p-2 text-left">Name</th><th className="p-2">Barangay</th><th className="p-2">Role</th><th className="p-2">Responder</th><th className="p-2">Action</th></tr></thead>
+          <thead className="bg-slate-50"><tr><th className="p-2 text-left">ID</th><th className="p-2 text-left">Name</th><th className="p-2">Barangay</th><th className="p-2">Role</th><th className="p-2">Responder</th><th className="p-2">Vehicles</th><th className="p-2">Action</th></tr></thead>
           <tbody>
             {list.map(u=> (
               <tr key={u.id} className="hover:bg-slate-50">
@@ -156,6 +160,7 @@ export default function UsersList({ users = [], onRefresh = ()=>{}, onEdit = nul
                     })()
                   ) : '-'}
                 </td>
+                <td className="p-2">{Array.isArray(u.vehicles) ? u.vehicles.length : 0}</td>
                 <td className="p-2">
                   <div className="flex gap-2">
                     {/* Toggle Responder removed */}
@@ -286,6 +291,43 @@ export default function UsersList({ users = [], onRefresh = ()=>{}, onEdit = nul
                 <label className="text-xs">Special Circumstances (comma separated)</label>
                 <input className="w-full p-2 border rounded" value={(modalData.specialCircumstances||[]).join(',')} onChange={(e)=>setModalData({...modalData, specialCircumstances: e.target.value.split(',').map(s=>s.trim()).filter(Boolean)})} />
               </div>
+
+              {/* Vehicles management for responders */}
+              {modalData.role === 'RESPONDER' && (
+                <div className="mt-3">
+                  <h4 className="text-sm font-semibold mb-2">Vehicles</h4>
+                  {(modalData.vehicles||[]).map((v, idx) => (
+                    <div key={idx} className="grid grid-cols-12 gap-2 items-center mb-2">
+                      <input className="col-span-4 p-2 border rounded" placeholder="Plate number" value={v.plateNumber || ''} onChange={(e)=>{
+                        const copy = [...(modalData.vehicles||[])]; copy[idx] = {...copy[idx], plateNumber: e.target.value}; setModalData({...modalData, vehicles: copy})
+                      }} />
+                      <input className="col-span-4 p-2 border rounded" placeholder="Model / Type" value={v.model || ''} onChange={(e)=>{
+                        const copy = [...(modalData.vehicles||[])]; copy[idx] = {...copy[idx], model: e.target.value}; setModalData({...modalData, vehicles: copy})
+                      }} />
+                      <input className="col-span-2 p-2 border rounded" placeholder="Color" value={v.color || ''} onChange={(e)=>{
+                        const copy = [...(modalData.vehicles||[])]; copy[idx] = {...copy[idx], color: e.target.value}; setModalData({...modalData, vehicles: copy})
+                      }} />
+                      <div className="col-span-1 flex items-center gap-1">
+                        <label className="text-xs">Active</label>
+                        <input type="checkbox" checked={!!v.active} onChange={(e)=>{
+                          const copy = [...(modalData.vehicles||[])]; copy[idx] = {...copy[idx], active: e.target.checked}; setModalData({...modalData, vehicles: copy})
+                        }} />
+                      </div>
+                      <div className="col-span-1">
+                        <button className="px-2 py-1 bg-red-100 rounded" onClick={()=>{
+                          const copy = [...(modalData.vehicles||[])]; copy.splice(idx,1); setModalData({...modalData, vehicles: copy})
+                        }}>Remove</button>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="flex gap-2">
+                    <button className="px-3 py-1 bg-slate-100 rounded" onClick={()=>{
+                      const copy = [...(modalData.vehicles||[])]; copy.push({ plateNumber: '', model: '', color: '', active: true }); setModalData({...modalData, vehicles: copy})
+                    }}>Add Vehicle</button>
+                    <div className="text-sm text-slate-500 self-center">Vehicles are stored with responder profile and can be assigned to emergencies later.</div>
+                  </div>
+                </div>
+              )}
 
               <div className="flex items-center justify-end gap-2">
                 <button className="px-3 py-1 rounded bg-slate-100" onClick={()=>{ setModalStep(1) }}>Back</button>
