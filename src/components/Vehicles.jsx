@@ -139,7 +139,14 @@ export default function Vehicles(){
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="text-sm text-slate-500">{vehicles.length} total</div>
+          {(() => {
+            const total = (vehicles||[]).length
+            const active = (vehicles||[]).filter(v=>v.active).length
+            const available = (vehicles||[]).filter(v=>v.active && !v.responderId).length
+            return (
+              <div className="text-sm text-slate-500">{total} total • {active} active • {available} available</div>
+            )
+          })()}
           <button className="px-3 py-1 bg-white border border-sky-600 text-sky-600 rounded shadow-sm hover:bg-sky-50 flex items-center gap-2" onClick={openCreate}>
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
             Create

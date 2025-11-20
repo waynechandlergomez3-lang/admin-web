@@ -106,6 +106,8 @@ export default function Dashboard({ emergencies = [], users = [], vehicles = [],
         <ul className="divide-y divide-slate-700 max-h-80 overflow-auto">
           {filteredEmergencies.slice(0, 10).map(e => {
             const priority = String(e.priority).toLowerCase()
+            const residentName = users.find(u => u.id === e.userId)?.name || e.user?.name || e.userId
+            const responderName = users.find(u => u.id === e.responderId)?.name || e.responder?.name || '—'
             return (
               <li key={e.id} className="py-3 flex items-start justify-between hover:bg-slate-800 p-2 rounded transition-colors">
                 <div className="flex-1">
@@ -115,7 +117,7 @@ export default function Dashboard({ emergencies = [], users = [], vehicles = [],
                   </div>
                   <div className="text-sm text-slate-400 mt-1">{e.description || '—'}</div>
                   <div className="text-xs text-slate-500 mt-2">
-                    Resident: <span className="font-medium text-slate-300">{e.user?.name || e.userId}</span> • Responder: <span className="font-medium text-slate-300">{e.responder?.name || '—'}</span>
+                    Resident: <span className="font-medium text-slate-300">{residentName}</span> • Responder: <span className="font-medium text-slate-300">{responderName}</span>
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-2">
@@ -135,7 +137,7 @@ export default function Dashboard({ emergencies = [], users = [], vehicles = [],
         </ul>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         {card('Active Emergencies', activeEmergencies, `${totalEmergencies} total`, <ChartIcon />, 'bg-red-900')}
         {card('In Progress', inProgress, 'Being handled by responders', <MapIconSvg />, 'bg-orange-900')}
         {card('Unassigned', unassignedEmergencies, 'Awaiting assignment', <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v9M6 12h12" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>, 'bg-yellow-900')}
@@ -145,7 +147,8 @@ export default function Dashboard({ emergencies = [], users = [], vehicles = [],
           const totalVehicles = (vehicles || []).length
           const activeVehicles = (vehicles || []).filter(v => v.active).length
           const assignedVehicles = (vehicles || []).filter(v => v.responderId).length
-          return card('Fleet', totalVehicles, `${activeVehicles} active • ${assignedVehicles} assigned`, <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 13h14l2 3v3H3v-6zM7 13V8h4v5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>, 'bg-sky-800')
+          const availableVehicles = (vehicles || []).filter(v => v.active && !v.responderId).length
+          return card('Fleet', totalVehicles, `${activeVehicles} active • ${assignedVehicles} assigned • ${availableVehicles} available`, <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 13h14l2 3v3H3v-6zM7 13V8h4v5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>, 'bg-sky-800')
         })()}
 
         {card('Available Responders', availableResponders, `${totalResponders} total • ${vehicleUnavailable} vehicle unavailable`, <UsersIcon />, 'bg-emerald-900')}

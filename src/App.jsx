@@ -107,48 +107,76 @@ export default function App(){
             <nav className="mt-4 px-2">
               <ul className="space-y-1">
                 <li>
-                  <button className={`w-full text-left px-3 py-2 rounded ${page==='dashboard'?'bg-slate-100':''}`} onClick={()=>setPage('dashboard')}>
-                    {sidebarOpen ? 'Dashboard' : 'D'}
+                  <button className={`w-full text-left px-3 py-2 rounded ${page==='dashboard'?'bg-slate-100':''}`} onClick={()=>setPage('dashboard')}
+                    aria-label="Dashboard">
+                    <div className="flex items-center gap-3">
+                      <svg className="w-5 h-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      {sidebarOpen && <span>Dashboard</span>}
+                    </div>
                   </button>
                 </li>
                 <li>
-                  <button className={`w-full text-left px-3 py-2 rounded ${page==='users'?'bg-slate-100':''}`} onClick={()=>setPage('users')}>
-                    {sidebarOpen ? 'Users' : 'U'}
+                  <button className={`w-full text-left px-3 py-2 rounded ${page==='users'?'bg-slate-100':''}`} onClick={()=>setPage('users')} aria-label="Users">
+                    <div className="flex items-center gap-3">
+                      <svg className="w-5 h-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M12 12a5 5 0 100-10 5 5 0 000 10z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      {sidebarOpen && <span>Users</span>}
+                    </div>
                   </button>
                 </li>
                 <li>
-                  <button className={`w-full text-left px-3 py-2 rounded ${page==='vehicles'?'bg-slate-100':''}`} onClick={()=>setPage('vehicles')}>
-                    {sidebarOpen ? 'Vehicles' : 'V'}
+                  <button className={`w-full text-left px-3 py-2 rounded ${page==='vehicles'?'bg-slate-100':''}`} onClick={()=>setPage('vehicles')} aria-label="Vehicles">
+                    <div className="flex items-center gap-3">
+                      <svg className="w-5 h-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 13h14l2 3v3H3v-6zM7 13V8h4v5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      {sidebarOpen && <span>Vehicles</span>}
+                    </div>
                   </button>
                 </li>
                 <li>
-                  <button className={`w-full text-left px-3 py-2 rounded ${page==='barangays'?'bg-slate-100':''}`} onClick={()=>setPage('barangays')}>
-                    {sidebarOpen ? 'Barangays' : 'B'}
+                  <button className={`w-full text-left px-3 py-2 rounded ${page==='barangays'?'bg-slate-100':''}`} onClick={()=>setPage('barangays')} aria-label="Barangays">
+                    <div className="flex items-center gap-3">
+                      <svg className="w-5 h-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      {sidebarOpen && <span>Barangays</span>}
+                    </div>
                   </button>
                 </li>
                 <li>
-                  <button className={`w-full text-left px-3 py-2 rounded ${page==='allhistory'?'bg-slate-100':''}`} onClick={()=>setPage('allhistory')}>
-                    {sidebarOpen ? 'All History' : 'H'}
+                  <button className={`w-full text-left px-3 py-2 rounded ${page==='allhistory'?'bg-slate-100':''}`} onClick={()=>setPage('allhistory')} aria-label="All history">
+                    <div className="flex items-center gap-3">
+                      <svg className="w-5 h-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 8v4l3 3M21 12A9 9 0 1112 3v1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      {sidebarOpen && <span>All History</span>}
+                    </div>
                   </button>
                 </li>
                 <li>
-                  <button className={`w-full text-left px-3 py-2 rounded ${page==='evac'?'bg-slate-100':''}`} onClick={()=>setPage('evac')}>
-                    {sidebarOpen ? 'Evacuation Centers' : 'E'}
+                  <button className={`w-full text-left px-3 py-2 rounded ${page==='evac'?'bg-slate-100':''}`} onClick={()=>setPage('evac')} aria-label="Evacuation centers">
+                    <div className="flex items-center gap-3">
+                      <svg className="w-5 h-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 11l9-7 9 7v7a2 2 0 01-2 2h-4v-5H9v5H5a2 2 0 01-2-2v-7z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      {sidebarOpen && <span>Evacuation Centers</span>}
+                    </div>
                   </button>
                 </li>
                 <li>
-                  <button className={`w-full text-left px-3 py-2 rounded ${page==='fraud'?'bg-slate-100':''}`} onClick={()=>setPage('fraud')}>
-                    {sidebarOpen ? 'Fraud' : 'F'}
+                  <button className={`w-full text-left px-3 py-2 rounded ${page==='fraud'?'bg-slate-100':''}`} onClick={()=>setPage('fraud')} aria-label="Fraud">
+                    <div className="flex items-center gap-3">
+                      <svg className="w-5 h-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L3 6v5c0 5 3 9 9 11 6-2 9-6 9-11V6l-9-4z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      {sidebarOpen && <span>Fraud</span>}
+                    </div>
                   </button>
                 </li>
                 <li>
-                  <button className={`w-full text-left px-3 py-2 rounded ${page==='weather'?'bg-slate-100':''}`} onClick={()=>setPage('weather')}>
-                    {sidebarOpen ? 'Weather Alerts' : 'W'}
+                  <button className={`w-full text-left px-3 py-2 rounded ${page==='weather'?'bg-slate-100':''}`} onClick={()=>setPage('weather')} aria-label="Weather">
+                    <div className="flex items-center gap-3">
+                      <svg className="w-5 h-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M13 16h-1v-4H8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M20 16.58A5 5 0 0018 7H6a4 4 0 000 8h1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      {sidebarOpen && <span>Weather Alerts</span>}
+                    </div>
                   </button>
                 </li>
                 <li>
-                  <button className={`w-full text-left px-3 py-2 rounded ${page==='reports'?'bg-slate-100':''}`} onClick={()=>setPage('reports')}>
-                    {sidebarOpen ? 'Reports' : 'R'}
+                  <button className={`w-full text-left px-3 py-2 rounded ${page==='reports'?'bg-slate-100':''}`} onClick={()=>setPage('reports')} aria-label="Reports">
+                    <div className="flex items-center gap-3">
+                      <svg className="w-5 h-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 17v-6a2 2 0 012-2h2a2 2 0 012 2v6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M3 7h18" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      {sidebarOpen && <span>Reports</span>}
+                    </div>
                   </button>
                 </li>
                 <li className="mt-4">
