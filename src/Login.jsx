@@ -20,6 +20,8 @@ export default function Login({ onLogin }){
       if(!token) throw new Error('No token')
       setAuthToken(token)
       initSocket(token)
+  // persist token so refresh keeps the session
+  try{ localStorage.setItem('authToken', token) }catch(e){ /* ignore storage errors */ }
       setRetryCount(0) // Reset retry count on success
       onLogin(token)
     }catch(err){

@@ -67,6 +67,16 @@ export default function App(){
     }
   }, [token])
 
+  // On app start try to restore token from localStorage
+  useEffect(()=>{
+    try{
+      const saved = localStorage.getItem('authToken')
+      if(saved) setToken(saved)
+    }catch(e){
+      // ignore localStorage errors
+    }
+  }, [])
+
   if(!token) return <div className="container"><Login onLogin={(t)=>setToken(t)} /><ToastContainer /></div>
 
   const openAssign = (em) => { setSelectedEmergency(em); setAssignOpen(true) }
@@ -141,9 +151,12 @@ export default function App(){
                 </li>
                 <li className="mt-4">
                   <button className="w-full text-left px-3 py-2 rounded bg-red-50 text-red-700" onClick={async ()=>{ 
-                    const ok = await showConfirm({ title: 'Logout', message: 'Are you sure you want to logout?', confirmText: 'Logout', cancelText: 'Cancel' })
-                    if(ok) { setToken(null); setAuthToken(null); window.location.reload() }
-                  }}>{sidebarOpen ? 'Logout' : 'L'}</button>
+                      const ok = await showConfirm({ title: 'Logout', message: 'Are you sure you want to logout?', confirmText: 'Logout', cancelText: 'Cancel' })
+                      if(ok) {
+                        try{ localStorage.removeItem('authToken') }catch(e){}
+                        setToken(null); setAuthToken(null); window.location.reload()
+                      }
+                    }}>{sidebarOpen ? 'Logout' : 'L'}</button>
                 </li>
               </ul>
             </nav>

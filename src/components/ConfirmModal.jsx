@@ -28,9 +28,10 @@ export default function ConfirmModal(){
   if(!open || !payload) return null
 
   return (
-    <div className="fixed inset-0 z-60 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={()=>close(false)} />
-      <div className="bg-white rounded-xl shadow-lg p-6 z-70 w-full max-w-md">
+    <div className="fixed inset-0 z-50 flex items-center justify-center" aria-hidden={!open}>
+      {/* overlay sits behind the modal content */}
+      <div className="absolute inset-0 bg-black/40 z-40" onClick={()=>close(false)} />
+      <div role="dialog" aria-modal="true" className="relative z-50 bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
         <div className="flex items-start gap-3">
           <div className="text-2xl text-amber-500">⚠️</div>
           <div>
