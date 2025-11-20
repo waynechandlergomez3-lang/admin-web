@@ -74,7 +74,7 @@ export default function App(){
     try{ await api.post('/evacuation-centers', payload); fetchData(); toast.notify({ type: 'success', message: 'Evacuation center created' }) }catch(e){ console.error(e); toast.notify({ type: 'error', message: 'Failed to create evac center' }) }
   }
       return (
-        <div className="flex h-screen">
+        <div className="flex h-screen light-theme">
           {/* Sidebar */}
           <aside className={`bg-white border-r transition-all duration-200 ${sidebarOpen ? 'w-64' : 'w-16'}`}>
             <div className="flex items-center justify-between p-4 border-b">

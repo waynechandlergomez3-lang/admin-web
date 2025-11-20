@@ -74,7 +74,7 @@ export default function Dashboard({ emergencies = [], users = [], evacCenters = 
   )
 
   return (
-    <div className="space-y-6 bg-slate-950 min-h-screen p-4">
+  <div className="space-y-6 bg-slate-950 min-h-screen p-4 dark-theme">
       {/* Emergencies shown on top */}
       <div className="bg-slate-900 rounded-xl shadow-lg p-4 border border-slate-700">
         <div className="flex items-center justify-between mb-3">

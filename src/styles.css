@@ -14,3 +14,109 @@ body { background-color: #f8fafc; color: #0f172a; -webkit-font-smoothing:antiali
 .badge-urgent { background:#ef4444; color:#fff; padding:.25rem .5rem; border-radius:9999px; font-size:.75rem; font-weight:700 }
 .badge-medium { background:#f59e0b; color:#fff; padding:.25rem .5rem; border-radius:9999px; font-size:.75rem; font-weight:700 }
 .badge-normal { background:#0ea5a0; color:#fff; padding:.25rem .5rem; border-radius:9999px; font-size:.75rem; font-weight:700 }
+
+/* Light-theme overrides: keep Tailwind classes intact but render components in a light style
+	and make hover states slightly darker for better visibility. Apply by adding
+	the `light-theme` class to a wrapper (we add it at the app root). */
+.light-theme { background-color: #f8fafc; color: #0f172a; }
+
+/* Panels/cards: replace commonly-used dark utility classes with light backgrounds */
+.light-theme .bg-slate-950,
+.light-theme .bg-slate-900,
+.light-theme .bg-slate-800,
+.light-theme .bg-slate-700 { background-color: #ffffff !important; color: #0f172a !important; }
+
+/* Text color tweaks inside light theme */
+.light-theme .text-white { color: #0f172a !important; }
+.light-theme .text-slate-300,
+.light-theme .text-slate-400,
+.light-theme .text-slate-500 { color: #475569 !important; }
+
+/* Border tweaks */
+.light-theme .border-slate-700 { border-color: #e2e8f0 !important; }
+.light-theme .divide-slate-700 { --tw-divide-opacity: 1; border-color: rgba(226,232,240,var(--tw-divide-opacity)) !important; }
+
+/* Hover states: make hovers darker than the light background for clearer contrast.
+	Tailwind uses utility class names with colons; escape them in CSS selectors. */
+.light-theme .hover\:bg-slate-800:hover,
+.light-theme .hover\:bg-slate-700:hover,
+.light-theme .hover\:bg-slate-600:hover,
+.light-theme .hover\:bg-slate-900:hover,
+.light-theme .hover\:bg-slate-950:hover,
+.light-theme .hover\:bg-white:hover,
+.light-theme .hover\:bg-slate-100:hover,
+.light-theme .hover\:bg-slate-200:hover,
+.light-theme .hover\:bg-slate-300:hover {
+  background-color: #e2e8f0 !important; /* slate-200: slightly darker than white */
+}
+
+/* For explicit hover:bg-* classes (non-prefixed by hover:) we also target the literal class name
+	used on elements such as `hover:bg-slate-800` which becomes an actual class on the element. */
+.light-theme .hover:bg-slate-800:hover,
+.light-theme .hover:bg-slate-700:hover,
+.light-theme .hover:bg-slate-600:hover {
+  background-color: #e2e8f0 !important;
+}
+
+/* Make focus/active borders visible on light theme */
+.light-theme .focus\:border-slate-400:focus { border-color: #94a3b8 !important; }
+
+/* Minimal button adjustments for better visibility */
+.light-theme .bg-slate-700 { background-color: #f1f5f9 !important; }
+.light-theme .bg-slate-600 { background-color: #e2e8f0 !important; }
+
+/* Dark-theme: placed after light-theme so it wins when both classes are present.
+	 Use this to opt-in specific pages/components to the dark appearance. */
+.dark-theme { background-color: #0f172a; color: #e6eef8; }
+.dark-theme .bg-slate-950,
+.dark-theme .bg-slate-900,
+.dark-theme .bg-slate-800,
+.dark-theme .bg-slate-700 { background-color: #0b1220 !important; color: #e6eef8 !important; }
+.dark-theme .text-white { color: #e6eef8 !important; }
+.dark-theme .text-slate-300,
+.dark-theme .text-slate-400,
+.dark-theme .text-slate-500 { color: #94a3b8 !important; }
+.dark-theme .border-slate-700 { border-color: #1f2937 !important; }
+.dark-theme .divide-slate-700 { --tw-divide-opacity: 1; border-color: rgba(31,41,55,var(--tw-divide-opacity)) !important; }
+
+/* Dark hover states: make them slightly lighter than panel background to be visible */
+.dark-theme .hover\:bg-slate-800:hover,
+.dark-theme .hover\:bg-slate-700:hover,
+.dark-theme .hover\:bg-slate-600:hover,
+.dark-theme .hover\:bg-slate-900:hover,
+.dark-theme .hover\:bg-slate-950:hover {
+	background-color: #0f172a !important; /* keep hover subtle on dark panels */
+}
+
+.dark-theme .hover:bg-slate-800:hover,
+.dark-theme .hover:bg-slate-700:hover,
+.dark-theme .hover:bg-slate-600:hover {
+	background-color: #0f172a !important;
+}
+
+/* Stronger, app-wide hover rules for clickable items so hovers are darker and more visible.
+	 Targets common interactive elements and Tailwind hover-* utility classes. */
+.light-theme button:hover,
+.light-theme a:hover,
+.light-theme li:hover,
+.light-theme [role="button"]:hover,
+.light-theme .hover\:bg-slate-800:hover,
+.light-theme .hover\:bg-slate-700:hover,
+.light-theme .hover\:bg-slate-600:hover,
+.light-theme .hover\:bg-slate-900:hover {
+	background-color: #94a3b8 !important; /* slate-400 — noticeably darker than white */
+	color: inherit !important;
+}
+
+.dark-theme button:hover,
+.dark-theme a:hover,
+.dark-theme li:hover,
+.dark-theme [role="button"]:hover,
+.dark-theme .hover\:bg-slate-800:hover,
+.dark-theme .hover\:bg-slate-700:hover,
+.dark-theme .hover\:bg-slate-600:hover,
+.dark-theme .hover\:bg-slate-900:hover {
+	background-color: #111827 !important; /* slate-900-ish — visible on dark panels */
+	color: inherit !important;
+}
+
