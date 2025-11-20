@@ -13,6 +13,7 @@ import Dashboard from './components/Dashboard'
 import EmergencyHistoryModal from './components/EmergencyHistoryModal'
 import WeatherAlertPanel from './components/WeatherAlertPanel'
 import Reports from './components/Reports'
+import Vehicles from './components/Vehicles'
 // ArticlePanel removed per request
 import BarangaysPanel from './components/BarangaysPanel'
 import AllEmergenciesHistory from './components/AllEmergenciesHistory'
@@ -104,6 +105,11 @@ export default function App(){
                   </button>
                 </li>
                 <li>
+                  <button className={`w-full text-left px-3 py-2 rounded ${page==='vehicles'?'bg-slate-100':''}`} onClick={()=>setPage('vehicles')}>
+                    {sidebarOpen ? 'Vehicles' : 'V'}
+                  </button>
+                </li>
+                <li>
                   <button className={`w-full text-left px-3 py-2 rounded ${page==='barangays'?'bg-slate-100':''}`} onClick={()=>setPage('barangays')}>
                     {sidebarOpen ? 'Barangays' : 'B'}
                   </button>
@@ -178,6 +184,12 @@ export default function App(){
               {page === 'users' && (
                 <div>
                   <UsersList users={users} onRefresh={fetchData} />
+                </div>
+              )}
+
+              {page === 'vehicles' && (
+                <div>
+                  <Vehicles />
                 </div>
               )}
 

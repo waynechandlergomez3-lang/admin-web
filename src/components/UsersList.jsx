@@ -134,7 +134,8 @@ export default function UsersList({ users = [], onRefresh = ()=>{}, onEdit = nul
   const residents = filtered.filter(u => u.role === 'RESIDENT')
   const others = filtered.filter(u => u.role !== 'RESPONDER' && u.role !== 'RESIDENT')
 
-  const renderTable = (list, title) => (
+  // renderTable optionally shows vehicles column (only for responders list)
+  const renderTable = (list, title, showVehicles=false) => (
     <div className="bg-white rounded-xl shadow p-4 w-full mb-4">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-lg font-semibold">{title}</h3>
@@ -142,7 +143,17 @@ export default function UsersList({ users = [], onRefresh = ()=>{}, onEdit = nul
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50"><tr><th className="p-2 text-left">ID</th><th className="p-2 text-left">Name</th><th className="p-2">Barangay</th><th className="p-2">Role</th><th className="p-2">Responder</th><th className="p-2">Vehicles</th><th className="p-2">Action</th></tr></thead>
+          <thead className="bg-slate-50">
+            <tr>
+              <th className="p-2 text-left">ID</th>
+              <th className="p-2 text-left">Name</th>
+              <th className="p-2">Barangay</th>
+              <th className="p-2">Role</th>
+              <th className="p-2">Responder</th>
+              {showVehicles && <th className="p-2">Vehicles</th>}
+              <th className="p-2">Action</th>
+            </tr>
+          </thead>
           <tbody>
             {list.map(u=> (
               <tr key={u.id} className="hover:bg-slate-50">
@@ -158,9 +169,9 @@ export default function UsersList({ users = [], onRefresh = ()=>{}, onEdit = nul
                       const cls = raw==='ON_DUTY' ? 'bg-red-600 text-white' : raw==='AVAILABLE' ? 'bg-green-600 text-white' : 'bg-gray-300 text-black'
                       return <span className={`px-2 py-1 rounded text-xs ${cls}`}>{label}</span>
                     })()
-                  ) : '-'}
+                  ) : '-' }
                 </td>
-                <td className="p-2">{Array.isArray(u.vehicles) ? u.vehicles.length : 0}</td>
+                {showVehicles && <td className="p-2">{Array.isArray(u.vehicles) ? u.vehicles.length : 0}</td>}
                 <td className="p-2">
                   <div className="flex gap-2">
                     {/* Toggle Responder removed */}
