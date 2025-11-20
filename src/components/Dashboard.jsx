@@ -144,16 +144,68 @@ export default function Dashboard({ emergencies = [], users = [], evacCenters = 
 
       <div className="grid lg:grid-cols-2 gap-4">
         <div className="bg-slate-900 rounded-xl shadow-lg p-4 border border-slate-700 hover:border-slate-600 transition-all">
-          <h3 className="font-semibold mb-2 text-white">Evacuation Centers</h3>
-          <ul className="divide-y divide-slate-700 max-h-64 overflow-auto">
-            {evacCenters.slice(0, 6).map(c => (
-              <li key={c.id} className="py-2 flex items-center justify-between hover:bg-slate-800 px-2 rounded transition-colors">
-                <div>
-                  <div className="font-medium text-white">{c.name}</div>
-                  <div className="text-xs text-slate-500">{c.location?.lat?.toFixed(4)},{c.location?.lng?.toFixed(4)}</div>
-                </div>
-              </li>
-            ))}
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-white">Evacuation Centers</h3>
+            <div className="text-sm text-slate-400">{evacCenters.length} total</div>
+          </div>
+
+          <ul className="space-y-3 max-h-72 overflow-auto">
+            {evacCenters.slice(0, 6).map(c => {
+              const cap = c.capacity || 0
+              const occ = c.currentCount || 0
+              const pct = cap > 0 ? Math.round((occ / cap) * 100) : 0
+              const available = Math.max(0, cap - occ)
+              const statusOpen = Boolean(c.isActive)
+              return (
+                <li key={c.id} className="p-3 bg-slate-800 rounded-lg hover:bg-slate-800/90 transition-colors border border-slate-700">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-md bg-rose-600 text-white w-12 h-12 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+                        <circle cx="12" cy="9" r="2.5" strokeWidth="1.5" />
+                      </svg>
+                    </div>
+
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-semibold text-white">{c.name}</div>
+                          <div className="text-xs text-slate-400">{c.address || `${c.location?.lat?.toFixed(4)}, ${c.location?.lng?.toFixed(4)}`}</div>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <div className={`text-xs font-semibold px-2 py-1 rounded ${statusOpen ? 'bg-green-700 text-green-100' : 'bg-gray-700 text-gray-200'}`}>{statusOpen ? 'Open' : 'Closed'}</div>
+                          <div className="text-xs text-slate-400 mt-2">{available} avail • {pct}%</div>
+                        </div>
+                      </div>
+
+                      <div className="mt-2">
+                        <div className="h-2 bg-slate-700 rounded overflow-hidden">
+                          <div className="h-2 bg-emerald-500" style={{ width: `${Math.min(100, pct)}%` }} />
+                        </div>
+                        <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
+                          <div className="flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2z"/></svg> {c.contactNumber || 'No contact'}</div>
+                          <div className="flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M3 6h18M3 14h18M3 18h18"/></svg> {c.facilities ? (Array.isArray(c.facilities) ? c.facilities.join(', ') : String(c.facilities)) : 'Facilities unknown'}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-end gap-2">
+                    <button className="px-3 py-1 rounded bg-slate-100 text-sm" onClick={()=>navigator.clipboard.writeText(`${c.location?.lat},${c.location?.lng}`)}>Copy coords</button>
+                    <button className="px-3 py-1 rounded bg-yellow-200 text-sm" onClick={()=>{ window.location.hash = '#/evac'; window.dispatchEvent(new CustomEvent('openEvacEdit', { detail: { id: c.id } })) }}>Manage</button>
+                    <button className="px-3 py-1 rounded bg-red-200 text-sm" onClick={async ()=>{
+                      const confirmClose = window.confirm(`${c.name}: set to ${c.isActive ? 'Closed' : 'Open'}?`)
+                      if(!confirmClose) return
+                      try{
+                        await fetch(`/api/evacuation-centers/${c.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ isActive: !c.isActive }) })
+                        // best-effort local update; global refresh occurs via ws or parent
+                        alert('Updated')
+                      }catch(e){ console.error(e); alert('Failed to update') }
+                    }}>Toggle</button>
+                  </div>
+                </li>
+              )
+            })}
           </ul>
         </div>
         <div>
