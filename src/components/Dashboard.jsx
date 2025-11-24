@@ -4,6 +4,9 @@ import api from '../services/api'
 
 export default function Dashboard({ emergencies = [], users = [], vehicles = [], evacCenters = [], onOpenAssign = ()=>{} }) {
   const [inventorySummary, setInventorySummary] = useState({ totalItems: 0, totalQuantity: 0 })
+  const [inventoryItems, setInventoryItems] = useState([])
+  const [invFilterResponder, setInvFilterResponder] = useState('')
+  const [invFilterAvailability, setInvFilterAvailability] = useState('all')
   const [priorityFilter, setPriorityFilter] = useState('ALL')
   const [statusFilter, setStatusFilter] = useState('ALL')
   const [barangayFilter, setBarangayFilter] = useState('ALL')
@@ -69,6 +72,20 @@ export default function Dashboard({ emergencies = [], users = [], vehicles = [],
     load()
     return () => { mounted = false }
   }, [])
+
+  // load inventory list for dashboard snapshot
+  const loadInventoryItems = async (responderId = '', availability = 'all') => {
+    try {
+      const params = {}
+      if (responderId) params.responderId = responderId
+      if (availability === 'available') params.available = true
+      if (availability === 'unavailable') params.available = false
+      const r = await api.get('/inventory', { params })
+      setInventoryItems(r.data || [])
+    } catch (e) {
+      console.error('Failed to load inventory for dashboard', e)
+    }
+  }
 
   const ChartIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -173,6 +190,72 @@ export default function Dashboard({ emergencies = [], users = [], vehicles = [],
       </div>
 
       <div className="grid lg:grid-cols-2 gap-4">
+
+        {/* Inventory snapshot panel */}
+        <div className="bg-white rounded-xl shadow p-4 border border-slate-200 hover:bg-slate-50 transition-all">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-slate-800">Inventory Snapshot</h3>
+            <div className="text-sm text-slate-500">{inventorySummary.totalItems} items</div>
+          </div>
+
+          <div className="flex gap-2 items-center mb-2">
+            <label className="text-sm">Responder:</label>
+            <select
+              value={invFilterResponder}
+              onChange={(e) => setInvFilterResponder(e.target.value)}
+              className="border px-2 py-1 rounded"
+            >
+              <option value="">All</option>
+              { (users||[]).filter(u => u.role === 'RESPONDER').map((r) => (
+                <option key={r.id} value={r.id}>{r.name || r.email}</option>
+              ))}
+            </select>
+
+            <label className="text-sm">Availability:</label>
+            <select
+              value={invFilterAvailability}
+              onChange={(e) => setInvFilterAvailability(e.target.value)}
+              className="border px-2 py-1 rounded"
+            >
+              <option value="all">All</option>
+              <option value="available">Available</option>
+              <option value="unavailable">Unavailable</option>
+            </select>
+
+            <button
+              className="bg-blue-500 text-white px-3 py-1 rounded"
+              onClick={() => loadInventoryItems(invFilterResponder, invFilterAvailability)}
+            >
+              Refresh
+            </button>
+          </div>
+
+          <p className="text-sm text-slate-600">Total Quantity: {inventorySummary.totalQuantity}</p>
+
+          <div className="mt-2">
+            <table className="w-full text-sm">
+              <thead>
+                <tr>
+                  <th className="text-left">Responder</th>
+                  <th className="text-left">Name</th>
+                  <th className="text-left">Qty</th>
+                  <th className="text-left">Available</th>
+                </tr>
+              </thead>
+              <tbody>
+                {inventoryItems.slice(0, 6).map((it) => (
+                  <tr key={it.id} className="border-t">
+                    <td>{it.responder?.name || it.responder?.email || '—'}</td>
+                    <td>{it.name}</td>
+                    <td>{it.quantity}</td>
+                    <td>{it.available ? 'Yes' : 'No'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <div className="bg-white rounded-xl shadow p-4 border border-slate-200 hover:bg-slate-50 transition-all">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-semibold text-white">Evacuation Centers</h3>
