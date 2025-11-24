@@ -4,11 +4,13 @@ import toast from '../services/toast'
 
 export default function Vehicles(){
   const [vehicles, setVehicles] = useState([])
+  const [inventory, setInventory] = useState({})
   const [responders, setResponders] = useState([])
   const [loading, setLoading] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [modalData, setModalData] = useState({ id: null, responderId: '', plateNumber: '', model: '', color: '', active: true })
   const [saving, setSaving] = useState(false)
+  const [inventoryModal, setInventoryModal] = useState({ open: false, vehicleId: null, items: [], newItem: { name: '', sku: '', quantity: 1, unit: '', notes: '' }, loading: false })
 
   const fetchResponders = async () => {
     try {
@@ -107,6 +109,32 @@ export default function Vehicles(){
   }
   const openEdit = (v) => { setModalData({ id: v.id, responderId: v.responderId, plateNumber: v.plateNumber||'', model: v.model||'', color: v.color||'', active: !!v.active }); setModalOpen(true) }
 
+  const openInventory = async (vehicleId) => {
+    setInventoryModal(s => ({ ...s, open: true, vehicleId, loading: true }))
+    try {
+      const res = await api.get('/inventory', { params: { vehicleId } })
+      const items = res.data || []
+      setInventoryModal({ open: true, vehicleId, items, newItem: { name: '', sku: '', quantity: 1, unit: '', notes: '' }, loading: false })
+    } catch (e) {
+      console.error('Failed to load inventory', e)
+      toast.notify({ type: 'error', message: 'Failed to load inventory' })
+      setInventoryModal(s => ({ ...s, loading: false }))
+    }
+  }
+
+  const addInventoryItem = async () => {
+    const { vehicleId, newItem } = inventoryModal
+    if(!newItem.name) return toast.notify({ type: 'error', message: 'Name required' })
+    try {
+      await api.post('/inventory', { vehicleId, ...newItem })
+      toast.notify({ type: 'success', message: 'Item added' })
+      openInventory(vehicleId)
+    } catch (e) {
+      console.error('Failed to add inventory item', e)
+      toast.notify({ type: 'error', message: 'Failed to add item' })
+    }
+  }
+
   const save = async () => {
     setSaving(true)
     try{
@@ -169,6 +197,7 @@ export default function Vehicles(){
                 <td className="p-2">
                   <div className="flex gap-2">
                     <button className="px-3 py-1 rounded bg-amber-100" onClick={()=>openEdit(v)}>Edit</button>
+                    <button className="px-3 py-1 rounded bg-emerald-100" onClick={()=>openInventory(v.id)}>Inventory</button>
                     <button className="px-3 py-1 rounded bg-red-100" onClick={()=>remove(v.id)}>Delete</button>
                   </div>
                 </td>
@@ -226,6 +255,54 @@ export default function Vehicles(){
                 <div className="flex items-center justify-end gap-2">
                   <button className="px-3 py-1 rounded bg-slate-100" onClick={()=>setModalOpen(false)}>Cancel</button>
                   <button className="px-3 py-1 bg-sky-600 text-white rounded" onClick={save} disabled={saving}>{saving ? 'Saving...' : 'Save'}</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {inventoryModal.open && (
+        <div className="fixed inset-0 z-50">
+          <div className="fixed inset-0 bg-black/40" onClick={()=>setInventoryModal({ open: false, vehicleId: null, items: [], newItem: { name: '', sku: '', quantity: 1, unit: '', notes: '' }, loading: false })} />
+          <div className="fixed inset-0 flex items-center justify-center p-4">
+            <div className="w-full max-w-lg bg-white rounded-xl shadow p-4">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <div className="text-lg font-semibold">Inventory — Vehicle {String(inventoryModal.vehicleId||'').slice(0,8)}</div>
+                  <div className="text-xs text-slate-400">Items assigned to this vehicle</div>
+                </div>
+                <button className="p-2 rounded text-slate-500 hover:bg-slate-100" onClick={()=>setInventoryModal({ open: false, vehicleId: null, items: [], newItem: { name: '', sku: '', quantity: 1, unit: '', notes: '' }, loading: false })}>✕</button>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <table className="w-full text-sm">
+                    <thead className="bg-slate-50"><tr><th className="p-2">Name</th><th className="p-2">Qty</th><th className="p-2">Unit</th><th className="p-2">SKU</th></tr></thead>
+                    <tbody>
+                      {(inventoryModal.items||[]).map(it => (
+                        <tr key={it.id} className="hover:bg-slate-50">
+                          <td className="p-2">{it.name}</td>
+                          <td className="p-2">{it.quantity}</td>
+                          <td className="p-2">{it.unit}</td>
+                          <td className="p-2">{it.sku}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2">
+                  <input className="p-2 border rounded" placeholder="Name" value={inventoryModal.newItem.name} onChange={(e)=>setInventoryModal(s=>({ ...s, newItem: { ...s.newItem, name: e.target.value } }))} />
+                  <input className="p-2 border rounded" placeholder="Quantity" type="number" value={inventoryModal.newItem.quantity} onChange={(e)=>setInventoryModal(s=>({ ...s, newItem: { ...s.newItem, quantity: Number(e.target.value) } }))} />
+                  <input className="p-2 border rounded" placeholder="Unit" value={inventoryModal.newItem.unit} onChange={(e)=>setInventoryModal(s=>({ ...s, newItem: { ...s.newItem, unit: e.target.value } }))} />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <input className="p-2 border rounded" placeholder="SKU" value={inventoryModal.newItem.sku} onChange={(e)=>setInventoryModal(s=>({ ...s, newItem: { ...s.newItem, sku: e.target.value } }))} />
+                  <input className="p-2 border rounded" placeholder="Notes" value={inventoryModal.newItem.notes} onChange={(e)=>setInventoryModal(s=>({ ...s, newItem: { ...s.newItem, notes: e.target.value } }))} />
+                </div>
+                <div className="flex items-center justify-end gap-2">
+                  <button className="px-3 py-1 rounded bg-slate-100" onClick={()=>setInventoryModal({ open: false, vehicleId: null, items: [], newItem: { name: '', sku: '', quantity: 1, unit: '', notes: '' }, loading: false })}>Close</button>
+                  <button className="px-3 py-1 bg-sky-600 text-white rounded" onClick={addInventoryItem}>Add Item</button>
                 </div>
               </div>
             </div>
