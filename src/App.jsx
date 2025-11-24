@@ -14,6 +14,7 @@ import EmergencyHistoryModal from './components/EmergencyHistoryModal'
 import WeatherAlertPanel from './components/WeatherAlertPanel'
 import Reports from './components/Reports'
 import Vehicles from './components/Vehicles'
+import Inventory from './components/Inventory'
 // ArticlePanel removed per request
 import BarangaysPanel from './components/BarangaysPanel'
 import AllEmergenciesHistory from './components/AllEmergenciesHistory'
@@ -172,6 +173,14 @@ export default function App(){
                   </button>
                 </li>
                 <li>
+                  <button className={`w-full text-left px-3 py-2 rounded ${page==='inventory'?'bg-slate-100':''}`} onClick={()=>setPage('inventory')} aria-label="Inventory">
+                    <div className="flex items-center gap-3">
+                      <svg className="w-5 h-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 7h18M3 12h18M3 17h18" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      {sidebarOpen && <span>Inventory</span>}
+                    </div>
+                  </button>
+                </li>
+                <li>
                   <button className={`w-full text-left px-3 py-2 rounded ${page==='reports'?'bg-slate-100':''}`} onClick={()=>setPage('reports')} aria-label="Reports">
                     <div className="flex items-center gap-3">
                       <svg className="w-5 h-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 17v-6a2 2 0 012-2h2a2 2 0 012 2v6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M3 7h18" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -263,6 +272,12 @@ export default function App(){
               {page === 'weather' && (
                 <div>
                   <WeatherAlertPanel />
+                </div>
+              )}
+
+              {page === 'inventory' && (
+                <div>
+                  <Inventory />
                 </div>
               )}
 
