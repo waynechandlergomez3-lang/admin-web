@@ -1,6 +1,5 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import ArticlePanel from './ArticlePanel'
-import { useEffect, useState } from 'react'
 import api from '../services/api'
 
 export default function Dashboard({ emergencies = [], users = [], vehicles = [], evacCenters = [], onOpenAssign = ()=>{} }) {
