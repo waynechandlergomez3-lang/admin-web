@@ -9,6 +9,7 @@ export default function Inventory() {
   const [filterAvailability, setFilterAvailability] = useState('all') // all | available | unavailable
   const [loading, setLoading] = useState(false)
   const [newItem, setNewItem] = useState({ responderId: '', name: '', sku: '', quantity: 1, unit: '', notes: '', available: true })
+  const [modalOpen, setModalOpen] = useState(false)
 
   const fetchResponders = async () => {
     try {
@@ -25,7 +26,7 @@ export default function Inventory() {
   const fetchItems = async (responderId, availability) => {
     setLoading(true)
     try {
-      const params: any = {}
+    const params = {}
       if (responderId) params.responderId = responderId
       if (availability === 'available') params.available = true
       if (availability === 'unavailable') params.available = false
@@ -102,6 +103,7 @@ export default function Inventory() {
             <option value="unavailable">Unavailable</option>
           </select>
           <button className="px-3 py-1 bg-sky-600 text-white rounded" onClick={applyFilter}>Filter</button>
+          <button className="px-3 py-1 bg-emerald-600 text-white rounded" onClick={()=>setModalOpen(true)}>Add Item</button>
         </div>
       </div>
 
@@ -133,28 +135,39 @@ export default function Inventory() {
         </table>
       </div>
 
-      <div className="border-t pt-4">
-        <h4 className="text-sm font-semibold mb-2">Add item</h4>
-        <div className="grid grid-cols-5 gap-2 mb-3">
-          <select className="p-2 border rounded col-span-1" value={newItem.responderId} onChange={(e)=>setNewItem(s=>({ ...s, responderId: e.target.value }))}>
-            {responders.map(r=> <option key={r.id} value={r.id}>{r.name || r.email}</option>)}
-          </select>
-          <input className="p-2 border rounded col-span-1" placeholder="Name" value={newItem.name} onChange={(e)=>setNewItem(s=>({ ...s, name: e.target.value }))} />
-          <input className="p-2 border rounded col-span-1" placeholder="Quantity" type="number" value={newItem.quantity} onChange={(e)=>setNewItem(s=>({ ...s, quantity: Number(e.target.value) }))} />
-          <input className="p-2 border rounded col-span-1" placeholder="Unit" value={newItem.unit} onChange={(e)=>setNewItem(s=>({ ...s, unit: e.target.value }))} />
-          <select className="p-2 border rounded col-span-1" value={newItem.available ? 'available' : 'unavailable'} onChange={(e)=>setNewItem(s=>({ ...s, available: e.target.value === 'available' }))}>
-            <option value="available">Available</option>
-            <option value="unavailable">Unavailable</option>
-          </select>
+      {modalOpen && (
+        <div className="fixed inset-0 z-50">
+          <div className="fixed inset-0 bg-black/40" onClick={()=>setModalOpen(false)} />
+          <div className="fixed inset-0 flex items-center justify-center p-4">
+            <div className="w-full max-w-lg bg-white rounded-xl shadow p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-sm font-semibold">Add Inventory Item</h4>
+                <button className="p-2 rounded text-slate-500 hover:bg-slate-100" onClick={()=>setModalOpen(false)}>✕</button>
+              </div>
+              <div className="grid grid-cols-5 gap-2 mb-3">
+                <select className="p-2 border rounded col-span-1" value={newItem.responderId} onChange={(e)=>setNewItem(s=>({ ...s, responderId: e.target.value }))}>
+                  {responders.map(r=> <option key={r.id} value={r.id}>{r.name || r.email}</option>)}
+                </select>
+                <input className="p-2 border rounded col-span-1" placeholder="Name" value={newItem.name} onChange={(e)=>setNewItem(s=>({ ...s, name: e.target.value }))} />
+                <input className="p-2 border rounded col-span-1" placeholder="Quantity" type="number" value={newItem.quantity} onChange={(e)=>setNewItem(s=>({ ...s, quantity: Number(e.target.value) }))} />
+                <input className="p-2 border rounded col-span-1" placeholder="Unit" value={newItem.unit} onChange={(e)=>setNewItem(s=>({ ...s, unit: e.target.value }))} />
+                <select className="p-2 border rounded col-span-1" value={newItem.available ? 'available' : 'unavailable'} onChange={(e)=>setNewItem(s=>({ ...s, available: e.target.value === 'available' }))}>
+                  <option value="available">Available</option>
+                  <option value="unavailable">Unavailable</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                <input className="p-2 border rounded" placeholder="SKU" value={newItem.sku} onChange={(e)=>setNewItem(s=>({ ...s, sku: e.target.value }))} />
+                <input className="p-2 border rounded" placeholder="Notes" value={newItem.notes} onChange={(e)=>setNewItem(s=>({ ...s, notes: e.target.value }))} />
+              </div>
+              <div className="flex justify-end gap-2">
+                <button className="px-3 py-1 bg-slate-100 rounded" onClick={()=>setModalOpen(false)}>Cancel</button>
+                <button className="px-3 py-1 bg-sky-600 text-white rounded" onClick={async ()=>{ await createItem(); setModalOpen(false) }}>Create</button>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="grid grid-cols-2 gap-2 mb-3">
-          <input className="p-2 border rounded" placeholder="SKU" value={newItem.sku} onChange={(e)=>setNewItem(s=>({ ...s, sku: e.target.value }))} />
-          <input className="p-2 border rounded" placeholder="Notes" value={newItem.notes} onChange={(e)=>setNewItem(s=>({ ...s, notes: e.target.value }))} />
-        </div>
-        <div className="flex justify-end">
-          <button className="px-3 py-1 bg-sky-600 text-white rounded" onClick={createItem}>Create</button>
-        </div>
-      </div>
+      )}
     </div>
   )
 }
