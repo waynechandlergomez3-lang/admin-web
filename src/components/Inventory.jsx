@@ -53,7 +53,7 @@ export default function Inventory() {
     try {
       await api.post('/inventory', newItem)
       toast.notify({ type: 'success', message: 'Item created' })
-      setNewItem({ responderId: newItem.responderId, name: '', sku: '', quantity: 1, unit: '', notes: '' })
+      setNewItem({ responderId: newItem.responderId, name: '', sku: '', quantity: 1, unit: '', notes: '', available: true })
       fetchItems(filterResponder || newItem.responderId || null, filterAvailability)
     } catch (e) {
       console.error('Failed to create inventory', e)
@@ -127,7 +127,7 @@ export default function Inventory() {
               </tr>
             ))}
             {items.length === 0 && !loading && (
-              <tr><td colSpan={7} className="p-4 text-center text-slate-500">No items</td></tr>
+              <tr><td colSpan={8} className="p-4 text-center text-slate-500">No items</td></tr>
             )}
           </tbody>
         </table>
@@ -135,13 +135,17 @@ export default function Inventory() {
 
       <div className="border-t pt-4">
         <h4 className="text-sm font-semibold mb-2">Add item</h4>
-        <div className="grid grid-cols-4 gap-2 mb-3">
+        <div className="grid grid-cols-5 gap-2 mb-3">
           <select className="p-2 border rounded col-span-1" value={newItem.responderId} onChange={(e)=>setNewItem(s=>({ ...s, responderId: e.target.value }))}>
             {responders.map(r=> <option key={r.id} value={r.id}>{r.name || r.email}</option>)}
           </select>
           <input className="p-2 border rounded col-span-1" placeholder="Name" value={newItem.name} onChange={(e)=>setNewItem(s=>({ ...s, name: e.target.value }))} />
           <input className="p-2 border rounded col-span-1" placeholder="Quantity" type="number" value={newItem.quantity} onChange={(e)=>setNewItem(s=>({ ...s, quantity: Number(e.target.value) }))} />
           <input className="p-2 border rounded col-span-1" placeholder="Unit" value={newItem.unit} onChange={(e)=>setNewItem(s=>({ ...s, unit: e.target.value }))} />
+          <select className="p-2 border rounded col-span-1" value={newItem.available ? 'available' : 'unavailable'} onChange={(e)=>setNewItem(s=>({ ...s, available: e.target.value === 'available' }))}>
+            <option value="available">Available</option>
+            <option value="unavailable">Unavailable</option>
+          </select>
         </div>
         <div className="grid grid-cols-2 gap-2 mb-3">
           <input className="p-2 border rounded" placeholder="SKU" value={newItem.sku} onChange={(e)=>setNewItem(s=>({ ...s, sku: e.target.value }))} />
