@@ -1,7 +1,10 @@
 import React, { useMemo, useState } from 'react'
 import ArticlePanel from './ArticlePanel'
+import { useEffect, useState } from 'react'
+import api from '../services/api'
 
 export default function Dashboard({ emergencies = [], users = [], vehicles = [], evacCenters = [], onOpenAssign = ()=>{} }) {
+  const [inventorySummary, setInventorySummary] = useState({ totalItems: 0, totalQuantity: 0 })
   const [priorityFilter, setPriorityFilter] = useState('ALL')
   const [statusFilter, setStatusFilter] = useState('ALL')
   const [barangayFilter, setBarangayFilter] = useState('ALL')
@@ -52,6 +55,21 @@ export default function Dashboard({ emergencies = [], users = [], vehicles = [],
       </div>
     </div>
   )
+
+  useEffect(() => {
+    let mounted = true
+    const load = async () => {
+      try {
+        const res = await api.get('/inventory/summary')
+        if (!mounted) return
+        setInventorySummary(res.data || { totalItems: 0, totalQuantity: 0 })
+      } catch (e) {
+        console.error('Failed to load inventory summary', e)
+      }
+    }
+    load()
+    return () => { mounted = false }
+  }, [])
 
   const ChartIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -152,6 +170,7 @@ export default function Dashboard({ emergencies = [], users = [], vehicles = [],
         })()}
 
         {card('Available Responders', availableResponders, `${totalResponders} total • ${vehicleUnavailable} vehicle unavailable`, <UsersIcon />, 'bg-emerald-900')}
+        {card('Inventory', inventorySummary.totalItems, `${inventorySummary.totalQuantity} total units`, <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 7h18M3 12h18M3 17h18" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>, 'bg-violet-900')}
       </div>
 
       <div className="grid lg:grid-cols-2 gap-4">
