@@ -10,7 +10,7 @@ export default function Vehicles(){
   const [modalOpen, setModalOpen] = useState(false)
   const [modalData, setModalData] = useState({ id: null, responderId: '', plateNumber: '', model: '', color: '', active: true })
   const [saving, setSaving] = useState(false)
-  const [inventoryModal, setInventoryModal] = useState({ open: false, vehicleId: null, items: [], newItem: { name: '', sku: '', quantity: 1, unit: '', notes: '' }, loading: false })
+  const [inventoryModal, setInventoryModal] = useState({ open: false, responderId: null, items: [], newItem: { name: '', sku: '', quantity: 1, unit: '', notes: '' }, loading: false })
 
   const fetchResponders = async () => {
     try {
@@ -109,12 +109,12 @@ export default function Vehicles(){
   }
   const openEdit = (v) => { setModalData({ id: v.id, responderId: v.responderId, plateNumber: v.plateNumber||'', model: v.model||'', color: v.color||'', active: !!v.active }); setModalOpen(true) }
 
-  const openInventory = async (vehicleId) => {
-    setInventoryModal(s => ({ ...s, open: true, vehicleId, loading: true }))
+  const openInventory = async (responderId) => {
+    setInventoryModal(s => ({ ...s, open: true, responderId, loading: true }))
     try {
-      const res = await api.get('/inventory', { params: { vehicleId } })
+      const res = await api.get('/inventory', { params: { responderId } })
       const items = res.data || []
-      setInventoryModal({ open: true, vehicleId, items, newItem: { name: '', sku: '', quantity: 1, unit: '', notes: '' }, loading: false })
+      setInventoryModal({ open: true, responderId, items, newItem: { name: '', sku: '', quantity: 1, unit: '', notes: '' }, loading: false })
     } catch (e) {
       console.error('Failed to load inventory', e)
       toast.notify({ type: 'error', message: 'Failed to load inventory' })
@@ -123,12 +123,12 @@ export default function Vehicles(){
   }
 
   const addInventoryItem = async () => {
-    const { vehicleId, newItem } = inventoryModal
+    const { responderId, newItem } = inventoryModal
     if(!newItem.name) return toast.notify({ type: 'error', message: 'Name required' })
     try {
-      await api.post('/inventory', { vehicleId, ...newItem })
+      await api.post('/inventory', { responderId, ...newItem })
       toast.notify({ type: 'success', message: 'Item added' })
-      openInventory(vehicleId)
+      openInventory(responderId)
     } catch (e) {
       console.error('Failed to add inventory item', e)
       toast.notify({ type: 'error', message: 'Failed to add item' })
@@ -197,7 +197,7 @@ export default function Vehicles(){
                 <td className="p-2">
                   <div className="flex gap-2">
                     <button className="px-3 py-1 rounded bg-amber-100" onClick={()=>openEdit(v)}>Edit</button>
-                    <button className="px-3 py-1 rounded bg-emerald-100" onClick={()=>openInventory(v.id)}>Inventory</button>
+                    <button className="px-3 py-1 rounded bg-emerald-100" onClick={()=>openInventory(v.responderId)}>Inventory</button>
                     <button className="px-3 py-1 rounded bg-red-100" onClick={()=>remove(v.id)}>Delete</button>
                   </div>
                 </td>
@@ -264,15 +264,15 @@ export default function Vehicles(){
 
       {inventoryModal.open && (
         <div className="fixed inset-0 z-50">
-          <div className="fixed inset-0 bg-black/40" onClick={()=>setInventoryModal({ open: false, vehicleId: null, items: [], newItem: { name: '', sku: '', quantity: 1, unit: '', notes: '' }, loading: false })} />
+          <div className="fixed inset-0 bg-black/40" onClick={()=>setInventoryModal({ open: false, responderId: null, items: [], newItem: { name: '', sku: '', quantity: 1, unit: '', notes: '' }, loading: false })} />
           <div className="fixed inset-0 flex items-center justify-center p-4">
             <div className="w-full max-w-lg bg-white rounded-xl shadow p-4">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <div className="text-lg font-semibold">Inventory — Vehicle {String(inventoryModal.vehicleId||'').slice(0,8)}</div>
-                  <div className="text-xs text-slate-400">Items assigned to this vehicle</div>
+                  <div className="text-lg font-semibold">Inventory — Responder {String(inventoryModal.responderId||'').slice(0,8)}</div>
+                  <div className="text-xs text-slate-400">Items assigned to this responder</div>
                 </div>
-                <button className="p-2 rounded text-slate-500 hover:bg-slate-100" onClick={()=>setInventoryModal({ open: false, vehicleId: null, items: [], newItem: { name: '', sku: '', quantity: 1, unit: '', notes: '' }, loading: false })}>✕</button>
+                <button className="p-2 rounded text-slate-500 hover:bg-slate-100" onClick={()=>setInventoryModal({ open: false, responderId: null, items: [], newItem: { name: '', sku: '', quantity: 1, unit: '', notes: '' }, loading: false })}>✕</button>
               </div>
               <div className="space-y-3">
                 <div>
@@ -301,7 +301,7 @@ export default function Vehicles(){
                   <input className="p-2 border rounded" placeholder="Notes" value={inventoryModal.newItem.notes} onChange={(e)=>setInventoryModal(s=>({ ...s, newItem: { ...s.newItem, notes: e.target.value } }))} />
                 </div>
                 <div className="flex items-center justify-end gap-2">
-                  <button className="px-3 py-1 rounded bg-slate-100" onClick={()=>setInventoryModal({ open: false, vehicleId: null, items: [], newItem: { name: '', sku: '', quantity: 1, unit: '', notes: '' }, loading: false })}>Close</button>
+                  <button className="px-3 py-1 rounded bg-slate-100" onClick={()=>setInventoryModal({ open: false, responderId: null, items: [], newItem: { name: '', sku: '', quantity: 1, unit: '', notes: '' }, loading: false })}>Close</button>
                   <button className="px-3 py-1 bg-sky-600 text-white rounded" onClick={addInventoryItem}>Add Item</button>
                 </div>
               </div>
