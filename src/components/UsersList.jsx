@@ -48,7 +48,8 @@ export default function UsersList({ users = [], onRefresh = ()=>{}, onEdit = nul
         medicalConditions: merged.medicalConditions || [],
         allergies: merged.allergies || [],
         specialCircumstances: merged.specialCircumstances || [],
-        vehicles: merged.vehicles || []
+        vehicles: merged.vehicles || [],
+        responderTypes: Array.isArray(merged.responderTypes) ? merged.responderTypes : (merged.responderTypes ? [merged.responderTypes] : [])
       })
       setModalOpen(true)
     }).catch(err => {
@@ -105,7 +106,8 @@ export default function UsersList({ users = [], onRefresh = ()=>{}, onEdit = nul
       medicalConditions: [],
       allergies: [],
       specialCircumstances: [],
-      vehicles: []
+      vehicles: [],
+      responderTypes: []
     })
     setModalOpen(true)
   }
@@ -168,7 +170,10 @@ export default function UsersList({ users = [], onRefresh = ()=>{}, onEdit = nul
                         const label = raw === 'ON_DUTY' ? 'ON DUTY' : raw === 'AVAILABLE' ? 'AVAILABLE' : raw === 'VEHICLE_UNAVAILABLE' ? 'NO VEHICLE' : (raw || 'UNKNOWN')
                         const cls = raw==='ON_DUTY' ? 'bg-amber-100 text-amber-800' : raw==='AVAILABLE' ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-700'
                         const icon = raw==='ON_DUTY' ? (<svg className="inline-block w-3 h-3 mr-1 text-amber-600" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>) : raw==='AVAILABLE' ? (<svg className="inline-block w-3 h-3 mr-1 text-emerald-600" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>) : (<svg className="inline-block w-3 h-3 mr-1 text-gray-500" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>)
-                        return <span className={`px-2 py-1 rounded text-xs inline-flex items-center ${cls}`}>{icon}{label}</span>
+                        return <div>
+                          <span className={`px-2 py-1 rounded text-xs inline-flex items-center ${cls}`}>{icon}{label}</span>
+                          <div className="text-xs text-slate-500 mt-1">{(u.responderTypes||[]).join(', ') || 'All types'}</div>
+                        </div>
                       })()
                     ) : '-' }
                 </td>
@@ -303,6 +308,13 @@ export default function UsersList({ users = [], onRefresh = ()=>{}, onEdit = nul
                 <label className="text-xs">Special Circumstances (comma separated)</label>
                 <input className="w-full p-2 border rounded" value={(modalData.specialCircumstances||[]).join(',')} onChange={(e)=>setModalData({...modalData, specialCircumstances: e.target.value.split(',').map(s=>s.trim()).filter(Boolean)})} />
               </div>
+
+              {modalData.role === 'RESPONDER' && (
+                <div>
+                  <label className="text-xs">Responder Types (comma separated, e.g. MEDICAL,FIRE)</label>
+                  <input className="w-full p-2 border rounded" value={(modalData.responderTypes||[]).join(',')} onChange={(e)=>setModalData({...modalData, responderTypes: e.target.value.split(',').map(s=>s.trim().toUpperCase()).filter(Boolean)})} />
+                </div>
+              )}
 
               {/* Vehicles management for responders */}
               {modalData.role === 'RESPONDER' && (

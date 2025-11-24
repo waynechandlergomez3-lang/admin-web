@@ -9,7 +9,8 @@ export default function AssignModal({ open, emergency, onClose = ()=>{}, onAssig
   useEffect(()=>{
     if(!open) return
     setLoading(true)
-    api.get('/users?role=RESPONDER')
+    const q = emergency && emergency.type ? `/users?role=RESPONDER&type=${encodeURIComponent((emergency.type||'').toString().toUpperCase())}` : '/users?role=RESPONDER'
+    api.get(q)
       .then(r=>setResponders(r.data||[]))
       .catch(()=>setResponders([]))
       .finally(()=>setLoading(false))

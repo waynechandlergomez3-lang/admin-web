@@ -7,6 +7,7 @@ export default function Dashboard({ emergencies = [], users = [], vehicles = [],
   const [inventoryItems, setInventoryItems] = useState([])
   const [invFilterResponder, setInvFilterResponder] = useState('')
   const [invFilterAvailability, setInvFilterAvailability] = useState('all')
+  const [dashboardTypeFilter, setDashboardTypeFilter] = useState('')
   const [priorityFilter, setPriorityFilter] = useState('ALL')
   const [statusFilter, setStatusFilter] = useState('ALL')
   const [barangayFilter, setBarangayFilter] = useState('ALL')
@@ -38,9 +39,11 @@ export default function Dashboard({ emergencies = [], users = [], vehicles = [],
   const activeEmergencies = emergencies.filter(e => e.status !== 'RESOLVED').length
   const inProgress = emergencies.filter(e => e.status === 'IN_PROGRESS').length
   const highPriority = emergencies.filter(e => e.priority === 'high' || e.priority === 1).length
-  const totalResponders = users.filter(u => u.role === 'RESPONDER').length
-  const availableResponders = users.filter(u => u.role === 'RESPONDER' && u.responderStatus === 'AVAILABLE').length
-  const vehicleUnavailable = users.filter(u => u.role === 'RESPONDER' && u.responderStatus === 'VEHICLE_UNAVAILABLE').length
+  // respect dashboard type filter: include responders who have no responderTypes (treated as unrestricted) or include the selected type
+  const respondersFilteredByType = (users||[]).filter(u => u.role === 'RESPONDER' && (dashboardTypeFilter === '' || !Array.isArray(u.responderTypes) || u.responderTypes.length === 0 || (Array.isArray(u.responderTypes) && (u.responderTypes||[]).map(t=>String(t).toUpperCase()).includes(String(dashboardTypeFilter).toUpperCase()))))
+  const totalResponders = respondersFilteredByType.length
+  const availableResponders = respondersFilteredByType.filter(u => u.responderStatus === 'AVAILABLE').length
+  const vehicleUnavailable = respondersFilteredByType.filter(u => u.responderStatus === 'VEHICLE_UNAVAILABLE').length
   const unassignedEmergencies = Math.max(0, activeEmergencies - inProgress)
 
   const IconPlaceholder = ({ children }) => (
@@ -116,6 +119,15 @@ export default function Dashboard({ emergencies = [], users = [], vehicles = [],
           <div className="text-sm text-slate-400">{filteredEmergencies.length} shown</div>
         </div>
         <div className="flex items-center gap-3 mb-3">
+          <label className="text-sm text-slate-300">Type:</label>
+          <select value={dashboardTypeFilter} onChange={(e)=>setDashboardTypeFilter(e.target.value)} className="px-2 py-1 border border-slate-600 rounded bg-slate-800 text-slate-200 hover:border-slate-500 focus:border-slate-400">
+            <option value="">All</option>
+            {(() => {
+              // derive types from users
+              const s = new Set(); (users||[]).forEach(u => { if(Array.isArray(u.responderTypes)) u.responderTypes.forEach(t=> t && s.add(String(t).toUpperCase())) }); return Array.from(s).map(t => <option key={t} value={t}>{t}</option>)
+            })()}
+          </select>
+          
           <label className="text-sm text-slate-300">Priority:</label>
           <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)} className="px-2 py-1 border border-slate-600 rounded bg-slate-800 text-slate-200 hover:border-slate-500 focus:border-slate-400">
             <option value="ALL">All</option>
@@ -206,7 +218,7 @@ export default function Dashboard({ emergencies = [], users = [], vehicles = [],
               className="border px-2 py-1 rounded"
             >
               <option value="">All</option>
-              { (users||[]).filter(u => u.role === 'RESPONDER').map((r) => (
+              { (users||[]).filter(u => u.role === 'RESPONDER' && (dashboardTypeFilter === '' || !Array.isArray(u.responderTypes) || u.responderTypes.length === 0 || (Array.isArray(u.responderTypes) && (u.responderTypes||[]).map(t=>String(t).toUpperCase()).includes(String(dashboardTypeFilter).toUpperCase())))).map((r) => (
                 <option key={r.id} value={r.id}>{r.name || r.email}</option>
               ))}
             </select>
