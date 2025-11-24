@@ -6,8 +6,9 @@ export default function Inventory() {
   const [items, setItems] = useState([])
   const [responders, setResponders] = useState([])
   const [filterResponder, setFilterResponder] = useState('')
+  const [filterAvailability, setFilterAvailability] = useState('all') // all | available | unavailable
   const [loading, setLoading] = useState(false)
-  const [newItem, setNewItem] = useState({ responderId: '', name: '', sku: '', quantity: 1, unit: '', notes: '' })
+  const [newItem, setNewItem] = useState({ responderId: '', name: '', sku: '', quantity: 1, unit: '', notes: '', available: true })
 
   const fetchResponders = async () => {
     try {
@@ -21,10 +22,14 @@ export default function Inventory() {
     }
   }
 
-  const fetchItems = async (responderId) => {
+  const fetchItems = async (responderId, availability) => {
     setLoading(true)
     try {
-      const res = await api.get('/inventory', { params: responderId ? { responderId } : {} })
+      const params: any = {}
+      if (responderId) params.responderId = responderId
+      if (availability === 'available') params.available = true
+      if (availability === 'unavailable') params.available = false
+      const res = await api.get('/inventory', { params })
       setItems(res.data || [])
     } catch (e) {
       console.error('Failed to load inventory', e)
@@ -37,11 +42,11 @@ export default function Inventory() {
     (async () => {
       const rs = await fetchResponders()
       setNewItem(s => ({ ...s, responderId: rs[0]?.id || '' }))
-      fetchItems()
+      fetchItems('', filterAvailability)
     })()
   }, [])
 
-  const applyFilter = () => fetchItems(filterResponder || null)
+  const applyFilter = () => fetchItems(filterResponder || filterResponder === '' ? filterResponder : null, filterAvailability)
 
   const createItem = async () => {
     if (!newItem.name) return toast.notify({ type: 'error', message: 'Name required' })
@@ -49,7 +54,7 @@ export default function Inventory() {
       await api.post('/inventory', newItem)
       toast.notify({ type: 'success', message: 'Item created' })
       setNewItem({ responderId: newItem.responderId, name: '', sku: '', quantity: 1, unit: '', notes: '' })
-      fetchItems(filterResponder || newItem.responderId || null)
+      fetchItems(filterResponder || newItem.responderId || null, filterAvailability)
     } catch (e) {
       console.error('Failed to create inventory', e)
       toast.notify({ type: 'error', message: 'Failed to create inventory' })
@@ -61,10 +66,21 @@ export default function Inventory() {
     try {
       await api.delete(`/inventory/${id}`)
       toast.notify({ type: 'success', message: 'Deleted' })
-      fetchItems(filterResponder || null)
+      fetchItems(filterResponder || null, filterAvailability)
     } catch (e) {
       console.error('Failed to delete inventory', e)
       toast.notify({ type: 'error', message: 'Failed to delete' })
+    }
+  }
+
+  const toggleAvailability = async (item) => {
+    try {
+      await api.put(`/inventory/${item.id}`, { available: !item.available })
+      toast.notify({ type: 'success', message: item.available ? 'Marked unavailable' : 'Marked available' })
+      fetchItems(filterResponder || null, filterAvailability)
+    } catch (e) {
+      console.error('Failed to toggle availability', e)
+      toast.notify({ type: 'error', message: 'Failed to update availability' })
     }
   }
 
@@ -80,13 +96,18 @@ export default function Inventory() {
             <option value="">All responders</option>
             {responders.map(r=> <option key={r.id} value={r.id}>{r.name || r.email}</option>)}
           </select>
+          <select className="p-2 border rounded" value={filterAvailability} onChange={(e)=>setFilterAvailability(e.target.value)}>
+            <option value="all">All</option>
+            <option value="available">Available</option>
+            <option value="unavailable">Unavailable</option>
+          </select>
           <button className="px-3 py-1 bg-sky-600 text-white rounded" onClick={applyFilter}>Filter</button>
         </div>
       </div>
 
       <div className="overflow-x-auto mb-4">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50"><tr><th className="p-2">Responder</th><th className="p-2">Name</th><th className="p-2">Qty</th><th className="p-2">Unit</th><th className="p-2">SKU</th><th className="p-2">Notes</th><th className="p-2">Action</th></tr></thead>
+          <thead className="bg-slate-50"><tr><th className="p-2">Responder</th><th className="p-2">Name</th><th className="p-2">Qty</th><th className="p-2">Unit</th><th className="p-2">SKU</th><th className="p-2">Available</th><th className="p-2">Notes</th><th className="p-2">Action</th></tr></thead>
           <tbody>
             {items.map(it => (
               <tr key={it.id} className="hover:bg-slate-50">
@@ -95,9 +116,11 @@ export default function Inventory() {
                 <td className="p-2">{it.quantity}</td>
                 <td className="p-2">{it.unit}</td>
                 <td className="p-2">{it.sku}</td>
+                <td className="p-2">{it.available ? 'Yes' : 'No'}</td>
                 <td className="p-2">{it.notes}</td>
                 <td className="p-2">
                   <div className="flex gap-2">
+                    <button className="px-3 py-1 rounded bg-amber-100" onClick={()=>toggleAvailability(it)}>{it.available ? 'Mark Unavailable' : 'Mark Available'}</button>
                     <button className="px-3 py-1 rounded bg-red-100" onClick={()=>removeItem(it.id)}>Delete</button>
                   </div>
                 </td>
