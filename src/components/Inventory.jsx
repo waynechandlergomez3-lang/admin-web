@@ -4,12 +4,15 @@ import toast from '../services/toast'
 
 export default function Inventory() {
   const [items, setItems] = useState([])
+  const [filteredItems, setFilteredItems] = useState([])
   const [responders, setResponders] = useState([])
   const [filterResponder, setFilterResponder] = useState('')
   const [filterAvailability, setFilterAvailability] = useState('all') // all | available | unavailable
   const [loading, setLoading] = useState(false)
   const [newItem, setNewItem] = useState({ responderId: '', name: '', sku: '', quantity: 1, unit: '', notes: '', available: true })
   const [modalOpen, setModalOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filterUnit, setFilterUnit] = useState('')
 
   const fetchResponders = async () => {
     try {
@@ -47,7 +50,41 @@ export default function Inventory() {
     })()
   }, [])
 
-  const applyFilter = () => fetchItems(filterResponder || filterResponder === '' ? filterResponder : null, filterAvailability)
+  // Apply filters and search
+  useEffect(() => {
+    let filtered = items
+
+    // Filter by responder
+    if (filterResponder) {
+      filtered = filtered.filter(i => i.responderId === filterResponder)
+    }
+
+    // Filter by availability
+    if (filterAvailability === 'available') {
+      filtered = filtered.filter(i => i.available)
+    } else if (filterAvailability === 'unavailable') {
+      filtered = filtered.filter(i => !i.available)
+    }
+
+    // Filter by unit
+    if (filterUnit) {
+      filtered = filtered.filter(i => i.unit?.toLowerCase() === filterUnit.toLowerCase())
+    }
+
+    // Search by name, sku, notes
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter(i => {
+        const responderName = responders.find(r => r.id === i.responderId)?.name?.toLowerCase() || ''
+        return i.name?.toLowerCase().includes(query) ||
+               i.sku?.toLowerCase().includes(query) ||
+               i.notes?.toLowerCase().includes(query) ||
+               responderName.includes(query)
+      })
+    }
+
+    setFilteredItems(filtered)
+  }, [items, searchQuery, filterResponder, filterAvailability, filterUnit, responders])
 
   const createItem = async () => {
     if (!newItem.name) return toast.notify({ type: 'error', message: 'Name required' })
@@ -92,34 +129,77 @@ export default function Inventory() {
           <h3 className="text-lg font-semibold">Inventory</h3>
           <div className="text-xs text-slate-400">Manage inventory items by responder</div>
         </div>
-        <div className="flex items-center gap-2">
-          <select className="p-2 border rounded" value={filterResponder} onChange={(e)=>setFilterResponder(e.target.value)}>
-            <option value="">All responders</option>
-            {responders.map(r=> <option key={r.id} value={r.id}>{r.name || r.email}</option>)}
-          </select>
-          <select className="p-2 border rounded" value={filterAvailability} onChange={(e)=>setFilterAvailability(e.target.value)}>
-            <option value="all">All</option>
-            <option value="available">Available</option>
-            <option value="unavailable">Unavailable</option>
-          </select>
-          <button className="px-3 py-1 bg-sky-600 text-white rounded" onClick={applyFilter}>Filter</button>
-          <button className="px-3 py-1 bg-emerald-600 text-white rounded" onClick={()=>setModalOpen(true)}>Add Item</button>
-        </div>
+        <button className="px-3 py-1 bg-emerald-600 text-white rounded" onClick={()=>setModalOpen(true)}>Add Item</button>
       </div>
+
+      {/* Comprehensive Search and Filter Bar */}
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-3 bg-slate-50 p-3 rounded-lg mb-4">
+        <input
+          type="text"
+          placeholder="Search name, SKU, notes, responder..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="col-span-2 p-2 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+        />
+        <select
+          value={filterResponder}
+          onChange={(e) => setFilterResponder(e.target.value)}
+          className="p-2 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+        >
+          <option value="">All Responders</option>
+          {responders.map(r => <option key={r.id} value={r.id}>{r.name || r.email}</option>)}
+        </select>
+        <select
+          value={filterAvailability}
+          onChange={(e) => setFilterAvailability(e.target.value)}
+          className="p-2 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+        >
+          <option value="all">All Status</option>
+          <option value="available">Available</option>
+          <option value="unavailable">Unavailable</option>
+        </select>
+        <select
+          value={filterUnit}
+          onChange={(e) => setFilterUnit(e.target.value)}
+          className="p-2 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+        >
+          <option value="">All Units</option>
+          <option value="pcs">pcs</option>
+          <option value="box">box</option>
+          <option value="roll">roll</option>
+          <option value="kg">kg</option>
+          <option value="liter">liter</option>
+          <option value="meter">meter</option>
+          <option value="pack">pack</option>
+          <option value="set">set</option>
+        </select>
+        <button
+          onClick={() => {
+            setSearchQuery('')
+            setFilterResponder('')
+            setFilterAvailability('all')
+            setFilterUnit('')
+          }}
+          className="p-2 border rounded text-sm hover:bg-slate-100"
+        >
+          Clear Filters
+        </button>
+      </div>
+      <div className="text-xs text-slate-500 mb-4">Showing {filteredItems.length} of {items.length} items</div>
 
       <div className="overflow-x-auto mb-4">
         <table className="w-full text-sm">
           <thead className="bg-slate-50"><tr><th className="p-2">Responder</th><th className="p-2">Name</th><th className="p-2">Qty</th><th className="p-2">Unit</th><th className="p-2">SKU</th><th className="p-2">Available</th><th className="p-2">Notes</th><th className="p-2">Action</th></tr></thead>
           <tbody>
-            {items.map(it => (
+            {filteredItems.map(it => (
               <tr key={it.id} className="hover:bg-slate-50">
                 <td className="p-2">{(responders.find(r=>r.id===it.responderId)?.name) || it.responderId}</td>
                 <td className="p-2">{it.name}</td>
                 <td className="p-2">{it.quantity}</td>
                 <td className="p-2">{it.unit}</td>
-                <td className="p-2">{it.sku}</td>
-                <td className="p-2">{it.available ? 'Yes' : 'No'}</td>
-                <td className="p-2">{it.notes}</td>
+                <td className="p-2 font-mono text-xs">{it.sku}</td>
+                <td className="p-2"><span className={`px-2 py-1 rounded text-xs font-medium ${it.available ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>{it.available ? 'Yes' : 'No'}</span></td>
+                <td className="p-2 text-xs text-gray-600">{it.notes}</td>
                 <td className="p-2">
                   <div className="flex gap-2">
                     <button className="px-3 py-1 rounded bg-amber-100" onClick={()=>toggleAvailability(it)}>{it.available ? 'Mark Unavailable' : 'Mark Available'}</button>
@@ -128,8 +208,8 @@ export default function Inventory() {
                 </td>
               </tr>
             ))}
-            {items.length === 0 && !loading && (
-              <tr><td colSpan={8} className="p-4 text-center text-slate-500">No items</td></tr>
+            {filteredItems.length === 0 && !loading && (
+              <tr><td colSpan={8} className="p-4 text-center text-slate-500">No items found matching criteria</td></tr>
             )}
           </tbody>
         </table>

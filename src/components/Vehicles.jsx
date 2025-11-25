@@ -4,12 +4,16 @@ import toast from '../services/toast'
 
 export default function Vehicles(){
   const [vehicles, setVehicles] = useState([])
-  
+  const [filteredVehicles, setFilteredVehicles] = useState([])
   const [responders, setResponders] = useState([])
   const [loading, setLoading] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [modalData, setModalData] = useState({ id: null, responderId: '', plateNumber: '', model: '', color: '', active: true })
   const [saving, setSaving] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filterType, setFilterType] = useState('')
+  const [filterResponder, setFilterResponder] = useState('')
+  const [filterStatus, setFilterStatus] = useState('all')
   
 
   const fetchResponders = async () => {
@@ -43,6 +47,42 @@ export default function Vehicles(){
   }
 
   useEffect(()=>{ fetchAll() }, [])
+
+  // Apply filters whenever vehicles, search, or filter criteria change
+  useEffect(() => {
+    let filtered = vehicles
+    
+    // Filter by responder
+    if (filterResponder) {
+      filtered = filtered.filter(v => v.responderId === filterResponder)
+    }
+    
+    // Filter by vehicle type
+    if (filterType) {
+      filtered = filtered.filter(v => v.model?.toLowerCase() === filterType.toLowerCase())
+    }
+    
+    // Filter by status
+    if (filterStatus === 'active') {
+      filtered = filtered.filter(v => v.active)
+    } else if (filterStatus === 'inactive') {
+      filtered = filtered.filter(v => !v.active)
+    }
+    
+    // Search by plate, color, responder name
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter(v => {
+        const responderName = responders.find(r => r.id === v.responderId)?.name?.toLowerCase() || ''
+        return v.plateNumber?.toLowerCase().includes(query) ||
+               v.color?.toLowerCase().includes(query) ||
+               v.model?.toLowerCase().includes(query) ||
+               responderName.includes(query)
+      })
+    }
+    
+    setFilteredVehicles(filtered)
+  }, [vehicles, searchQuery, filterType, filterResponder, filterStatus, responders])
 
   // vehicle type choices shown in the modal dropdown
   const VEHICLE_TYPES = [
@@ -134,35 +174,74 @@ export default function Vehicles(){
 
   return (
     <div className="bg-white rounded-xl shadow p-4">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-sky-500 to-indigo-500 rounded-full flex items-center justify-center text-white text-lg font-bold">V</div>
-          <div>
-            <h3 className="text-lg font-semibold">Vehicles</h3>
-            <div className="text-xs text-slate-400">Fleet and responder vehicles</div>
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-sky-500 to-indigo-500 rounded-full flex items-center justify-center text-white text-lg font-bold">V</div>
+            <div>
+              <h3 className="text-lg font-semibold">Vehicles</h3>
+              <div className="text-xs text-slate-400">Fleet and responder vehicles</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            {(() => {
+              const total = (vehicles||[]).length
+              const active = (vehicles||[]).filter(v=>v.active).length
+              const available = (vehicles||[]).filter(v=>v.active && !v.responderId).length
+              return (
+                <div className="text-sm text-slate-500">{total} total • {active} active • {available} available</div>
+              )
+            })()}
+            <button className="px-3 py-1 bg-white border border-sky-600 text-sky-600 rounded shadow-sm hover:bg-sky-50 flex items-center gap-2" onClick={openCreate}>
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              Create
+            </button>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          {(() => {
-            const total = (vehicles||[]).length
-            const active = (vehicles||[]).filter(v=>v.active).length
-            const available = (vehicles||[]).filter(v=>v.active && !v.responderId).length
-            return (
-              <div className="text-sm text-slate-500">{total} total • {active} active • {available} available</div>
-            )
-          })()}
-          <button className="px-3 py-1 bg-white border border-sky-600 text-sky-600 rounded shadow-sm hover:bg-sky-50 flex items-center gap-2" onClick={openCreate}>
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            Create
-          </button>
+        
+        {/* Search and Filter Bar */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-3 bg-slate-50 p-3 rounded-lg">
+          <input
+            type="text"
+            placeholder="Search by plate, color, responder..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="col-span-2 p-2 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+          />
+          <select
+            value={filterResponder}
+            onChange={(e) => setFilterResponder(e.target.value)}
+            className="p-2 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+          >
+            <option value="">All Responders</option>
+            {responders.map(r => <option key={r.id} value={r.id}>{r.name || r.email}</option>)}
+          </select>
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            className="p-2 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+          >
+            <option value="">All Types</option>
+            {VEHICLE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="p-2 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+          >
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
         </div>
+        <div className="text-xs text-slate-500 mt-2">Showing {filteredVehicles.length} of {vehicles.length} vehicles</div>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-slate-50"><tr><th className="p-2">ID</th><th className="p-2">Responder</th><th className="p-2">Plate</th><th className="p-2">Vehicle Type</th><th className="p-2">Color</th><th className="p-2">Active</th><th className="p-2">Action</th></tr></thead>
           <tbody>
-            {vehicles.map(v => (
+            {filteredVehicles.map(v => (
               <tr key={v.id} className="hover:bg-slate-50">
                 <td className="p-2 font-mono text-xs">{String(v.id).slice(0,8)}</td>
                 <td className="p-2">{responders.find(r=>r.id===v.responderId)?.name || v.responderId}</td>
@@ -178,6 +257,9 @@ export default function Vehicles(){
                 </td>
               </tr>
             ))}
+            {filteredVehicles.length === 0 && !loading && (
+              <tr><td colSpan={7} className="p-4 text-center text-slate-500">No vehicles found matching criteria</td></tr>
+            )}
           </tbody>
         </table>
       </div>
