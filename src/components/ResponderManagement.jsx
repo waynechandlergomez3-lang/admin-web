@@ -37,7 +37,6 @@ export default function ResponderManagement() {
       const respondersList = Array.isArray(res.data) ? res.data : res.data.data || []
       setResponders(respondersList)
       
-      // Calculate stats
       const typeStats = {}
       RESPONDER_TYPES.forEach(type => {
         typeStats[type] = respondersList.filter(r => 
@@ -124,7 +123,6 @@ export default function ResponderManagement() {
         ))}
       </div>
 
-      {/* Loading State */}
       {loading && (
         <div className="text-center py-12">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -132,7 +130,6 @@ export default function ResponderManagement() {
         </div>
       )}
 
-      {/* Responders Table */}
       {!loading && responders.length === 0 && (
         <div className="text-center py-12 bg-gray-50 rounded-lg">
           <p className="text-gray-600">No responders found</p>
@@ -180,6 +177,8 @@ export default function ResponderManagement() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex gap-2">
+
+                        {/* Only "Edit Type" remains */}
                         <button
                           onClick={() => {
                             setSelectedResponder(responder)
@@ -189,8 +188,7 @@ export default function ResponderManagement() {
                         >
                           Edit Type
                         </button>
-                       
-                     
+
                       </div>
                     </td>
                   </tr>
@@ -245,7 +243,7 @@ export default function ResponderManagement() {
         </div>
       )}
 
-      {/* Assign Modal */}
+      {/* Assign Modal (kept intact but unused since button removed) */}
       {showAssignModal && selectedResponder && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg p-6 max-w-2xl w-full">
