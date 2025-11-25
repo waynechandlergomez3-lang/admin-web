@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import api from '../services/api'
-import { confirmAction } from '../services/confirm'
-import toast from '../services/toast'
+import { showConfirm } from '../services/confirm'
+import { notify } from '../services/toast'
 
 export default function MediaViewer() {
   const [media, setMedia] = useState([])
@@ -30,7 +30,7 @@ export default function MediaViewer() {
       setMedia(Array.isArray(mediaRes.data) ? mediaRes.data : [])
     } catch (err) {
       console.error('Failed to fetch media', err)
-      toast.notify({ type: 'error', message: 'Failed to load media submissions' })
+      notify({ type: 'error', message: 'Failed to load media submissions' })
     } finally {
       setLoading(false)
     }
@@ -39,27 +39,27 @@ export default function MediaViewer() {
   const updateMediaStatus = async (id, status, notes) => {
     try {
       await api.patch(`/media/admin/${id}/status`, { status, notes })
-      toast.notify({ type: 'success', message: `Media marked as ${status}` })
+      notify({ type: 'success', message: `Media marked as ${status}` })
       setReviewingId(null)
       setReviewNotes('')
       fetchMediaAndStats()
     } catch (err) {
       console.error('Failed to update media status', err)
-      toast.notify({ type: 'error', message: 'Failed to update media status' })
+      notify({ type: 'error', message: 'Failed to update media status' })
     }
   }
 
   const deleteMedia = async (id) => {
-    const confirmed = await confirmAction('Delete this submission permanently?')
+    const confirmed = await showConfirm({ title: 'Delete Submission', message: 'Delete this submission permanently?', confirmText: 'Delete', cancelText: 'Cancel' })
     if (!confirmed) return
 
     try {
       await api.delete(`/media/${id}`)
-      toast.notify({ type: 'success', message: 'Submission deleted' })
+      notify({ type: 'success', message: 'Submission deleted' })
       fetchMediaAndStats()
     } catch (err) {
       console.error('Failed to delete media', err)
-      toast.notify({ type: 'error', message: 'Failed to delete submission' })
+      notify({ type: 'error', message: 'Failed to delete submission' })
     }
   }
 
