@@ -8,8 +8,8 @@ import { showToast } from '../services/toast'
 const getMediaUrl = (mediaUrl) => {
   if (!mediaUrl) return ''
   if (mediaUrl.startsWith('http')) return mediaUrl
-  // Get the backend base URL without /api suffix
-  const backendBase = API_BASE.replace('/api', '')
+  // Hardcode the backend base URL for media serving
+  const backendBase = 'https://sagipero-backend-production.up.railway.app'
   return `${backendBase}${mediaUrl}`
 }
 
