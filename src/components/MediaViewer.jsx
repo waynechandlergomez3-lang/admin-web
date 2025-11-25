@@ -140,14 +140,14 @@ export default function MediaViewer() {
       {loading && (
         <div className="text-center py-12">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="text-gray-600 mt-2">Loading submissions...</p>
+          <p className="text-gray-600 mt-2">Resolving submissions...</p>
         </div>
       )}
 
       {/* Media Grid */}
       {!loading && media.length === 0 && (
         <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <p className="text-gray-600">No submissions found</p>
+          <p className="text-gray-600">No submissions resolved</p>
         </div>
       )}
 
@@ -225,7 +225,7 @@ export default function MediaViewer() {
                     onClick={() => setReviewingId(item.id)}
                     className="flex-1 px-3 py-2 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700"
                   >
-                    Review
+                    Resolve
                   </button>
                   <button
                     onClick={() => deleteMedia(item.id)}
@@ -244,7 +244,7 @@ export default function MediaViewer() {
       {reviewingId && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg p-6 max-w-sm w-full">
-            <h2 className="text-2xl font-bold mb-4 text-gray-800">Review Submission</h2>
+            <h2 className="text-2xl font-bold mb-4 text-gray-800">Resolve Submission</h2>
 
             {/* Status Selection */}
             <div className="mb-4">
@@ -285,7 +285,7 @@ export default function MediaViewer() {
                 }
                 className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
               >
-                Submit Review
+                Submit Resolution
               </button>
             </div>
           </div>
