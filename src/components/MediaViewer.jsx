@@ -10,7 +10,9 @@ const getMediaUrl = (mediaUrl) => {
   if (mediaUrl.startsWith('http')) return mediaUrl
   // Hardcode the backend base URL for media serving
   const backendBase = 'https://sagipero-backend-production.up.railway.app'
-  return `${backendBase}${mediaUrl}`
+  const fullUrl = `${backendBase}${mediaUrl}`
+  console.log('📸 Media URL:', { mediaUrl, fullUrl })
+  return fullUrl
 }
 
 export default function MediaViewer() {
