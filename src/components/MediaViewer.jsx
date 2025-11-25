@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react'
 import api from '../services/api'
 import { API_BASE } from '../services/config'
 import { confirmAction } from '../services/confirm'
-import { showToast } from '../services/toast'
+import { notify } from '../services/toast'
 
+// CACHE BUST: Force redeploy - Updated Nov 26 2025 12:00 UTC
 // Helper to build full media URL
 const getMediaUrl = (mediaUrl) => {
   if (!mediaUrl) return ''
@@ -42,7 +43,7 @@ export default function MediaViewer() {
       setMedia(Array.isArray(mediaRes.data) ? mediaRes.data : [])
     } catch (err) {
       console.error('Failed to fetch media', err)
-      showToast('Failed to load media submissions', 'error')
+      notify({ type: 'error', title: 'Error', message: 'Failed to load media submissions' })
     } finally {
       setLoading(false)
     }
@@ -51,13 +52,13 @@ export default function MediaViewer() {
   const updateMediaStatus = async (id, status, notes) => {
     try {
       await api.patch(`/media/admin/${id}/status`, { status, notes })
-      showToast(`Media marked as ${status}`, 'success')
+      notify({ type: 'success', title: 'Success', message: `Media marked as ${status}` })
       setReviewingId(null)
       setReviewNotes('')
       fetchMediaAndStats()
     } catch (err) {
       console.error('Failed to update media status', err)
-      showToast('Failed to update media status', 'error')
+      notify({ type: 'error', title: 'Error', message: 'Failed to update media status' })
     }
   }
 
@@ -67,11 +68,11 @@ export default function MediaViewer() {
 
     try {
       await api.delete(`/media/${id}`)
-      showToast('Submission deleted', 'success')
+      notify({ type: 'success', title: 'Success', message: 'Submission deleted' })
       fetchMediaAndStats()
     } catch (err) {
       console.error('Failed to delete media', err)
-      showToast('Failed to delete submission', 'error')
+      notify({ type: 'error', title: 'Error', message: 'Failed to delete submission' })
     }
   }
 
