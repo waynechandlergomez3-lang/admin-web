@@ -189,21 +189,8 @@ export default function ResponderManagement() {
                         >
                           Edit Type
                         </button>
-                        <button
-                          onClick={() => {
-                            setSelectedResponder(responder)
-                            setShowAssignModal(true)
-                          }}
-                          className="px-3 py-1 bg-green-600 text-white rounded text-sm font-medium hover:bg-green-700"
-                        >
-                          Assign
-                        </button>
-                        <button
-                          onClick={() => toggleResponderStatus(responder.id, responder.responderStatus)}
-                          className="px-3 py-1 bg-purple-600 text-white rounded text-sm font-medium hover:bg-purple-700"
-                        >
-                          {responder.responderStatus === 'AVAILABLE' ? 'Set Duty' : 'Set Available'}
-                        </button>
+                       
+                     
                       </div>
                     </td>
                   </tr>
