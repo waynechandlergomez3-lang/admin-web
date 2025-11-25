@@ -1,7 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import api from '../services/api'
-import { showConfirm } from '../services/confirm'
-import { notify } from '../services/toast'
+import { API_BASE } from '../services/config'
+import { confirmAction } from '../services/confirm'
+import { showToast } from '../services/toast'
+
+// Helper to build full media URL
+const getMediaUrl = (mediaUrl) => {
+  if (!mediaUrl) return ''
+  if (mediaUrl.startsWith('http')) return mediaUrl
+  // Get the backend base URL without /api suffix
+  const backendBase = API_BASE.replace('/api', '')
+  return `${backendBase}${mediaUrl}`
+}
 
 export default function MediaViewer() {
   const [media, setMedia] = useState([])
@@ -30,7 +40,7 @@ export default function MediaViewer() {
       setMedia(Array.isArray(mediaRes.data) ? mediaRes.data : [])
     } catch (err) {
       console.error('Failed to fetch media', err)
-      notify({ type: 'error', message: 'Failed to load media submissions' })
+      showToast('Failed to load media submissions', 'error')
     } finally {
       setLoading(false)
     }
@@ -39,27 +49,27 @@ export default function MediaViewer() {
   const updateMediaStatus = async (id, status, notes) => {
     try {
       await api.patch(`/media/admin/${id}/status`, { status, notes })
-      notify({ type: 'success', message: `Media marked as ${status}` })
+      showToast(`Media marked as ${status}`, 'success')
       setReviewingId(null)
       setReviewNotes('')
       fetchMediaAndStats()
     } catch (err) {
       console.error('Failed to update media status', err)
-      notify({ type: 'error', message: 'Failed to update media status' })
+      showToast('Failed to update media status', 'error')
     }
   }
 
   const deleteMedia = async (id) => {
-    const confirmed = await showConfirm({ title: 'Delete Submission', message: 'Delete this submission permanently?', confirmText: 'Delete', cancelText: 'Cancel' })
+    const confirmed = await confirmAction('Delete this submission permanently?')
     if (!confirmed) return
 
     try {
       await api.delete(`/media/${id}`)
-      notify({ type: 'success', message: 'Submission deleted' })
+      showToast('Submission deleted', 'success')
       fetchMediaAndStats()
     } catch (err) {
       console.error('Failed to delete media', err)
-      notify({ type: 'error', message: 'Failed to delete submission' })
+      showToast('Failed to delete submission', 'error')
     }
   }
 
@@ -149,7 +159,7 @@ export default function MediaViewer() {
               >
                 {item.mediaType === 'photo' ? (
                   <img
-                    src={item.mediaUrl}
+                    src={getMediaUrl(item.mediaUrl)}
                     alt={item.caption || 'Submission'}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                   />
@@ -295,13 +305,13 @@ export default function MediaViewer() {
 
             {selectedMedia.mediaType === 'photo' ? (
               <img
-                src={selectedMedia.mediaUrl}
+                src={getMediaUrl(selectedMedia.mediaUrl)}
                 alt={selectedMedia.caption || 'Submission'}
                 className="w-full rounded-lg"
               />
             ) : (
               <video
-                src={selectedMedia.mediaUrl}
+                src={getMediaUrl(selectedMedia.mediaUrl)}
                 controls
                 className="w-full rounded-lg"
               />
