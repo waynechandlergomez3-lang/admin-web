@@ -9,7 +9,9 @@ const RESPONDER_TYPES = [
   'POLICE',
   'RESCUE',
   'DISASTER_MANAGEMENT',
-  'COMMUNITY_RESPONDER'
+  'COMMUNITY_RESPONDER',
+  'FLOOD',
+  'EARTHQUAKE'
 ]
 
 export default function ResponderManagement() {
@@ -20,6 +22,7 @@ export default function ResponderManagement() {
   const [editingTypes, setEditingTypes] = useState({})
   const [emergencies, setEmergencies] = useState([])
   const [showAssignModal, setShowAssignModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
   const [selectedEmergency, setSelectedEmergency] = useState(null)
 
   useEffect(() => {
@@ -178,10 +181,13 @@ export default function ResponderManagement() {
                     <td className="px-6 py-4">
                       <div className="flex gap-2">
                         <button
-                          onClick={() => setSelectedResponder(responder.id === selectedResponder ? null : responder.id)}
+                          onClick={() => {
+                            setSelectedResponder(responder)
+                            setShowEditModal(true)
+                          }}
                           className="px-3 py-1 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700"
                         >
-                          {selectedResponder === responder.id ? 'Close' : 'Edit'}
+                          Edit Type
                         </button>
                         <button
                           onClick={() => {
@@ -206,35 +212,47 @@ export default function ResponderManagement() {
             </table>
           </div>
 
-          {/* Edit Types Section */}
-          {selectedResponder && (
-            <div className="bg-gray-50 border-t p-6">
-              {responders.find(r => r.id === selectedResponder) && (
-                <div>
-                  <h3 className="text-lg font-semibold mb-4 text-gray-800">
-                    Edit Responder Types: {responders.find(r => r.id === selectedResponder)?.name}
-                  </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-                    {RESPONDER_TYPES.map((type) => (
-                      <label key={type} className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={(editingTypes[selectedResponder] || responders.find(r => r.id === selectedResponder)?.responderTypes || []).includes(type)}
-                          onChange={() => toggleResponderType(selectedResponder, type)}
-                          className="w-4 h-4 rounded"
-                        />
-                        <span className="text-sm text-gray-700">{type.replace(/_/g, ' ')}</span>
-                      </label>
-                    ))}
-                  </div>
+          {/* Edit Types Modal */}
+          {showEditModal && selectedResponder && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-lg p-6 max-w-2xl w-full">
+                <h2 className="text-2xl font-bold mb-4 text-gray-800">
+                  Edit Responder Types: {selectedResponder.name}
+                </h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                  {RESPONDER_TYPES.map((type) => (
+                    <label key={type} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={(editingTypes[selectedResponder.id] || selectedResponder?.responderTypes || []).includes(type)}
+                        onChange={() => toggleResponderType(selectedResponder.id, type)}
+                        className="w-4 h-4 rounded"
+                      />
+                      <span className="text-sm text-gray-700">{type.replace(/_/g, ' ')}</span>
+                    </label>
+                  ))}
+                </div>
+                <div className="flex gap-2">
                   <button
-                    onClick={() => updateResponderTypes(selectedResponder, editingTypes[selectedResponder] || [])}
-                    className="px-4 py-2 bg-blue-600 text-white rounded font-medium hover:bg-blue-700"
+                    onClick={() => {
+                      updateResponderTypes(selectedResponder.id, editingTypes[selectedResponder.id] || [])
+                      setShowEditModal(false)
+                    }}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded font-medium hover:bg-blue-700"
                   >
                     Save Changes
                   </button>
+                  <button
+                    onClick={() => {
+                      setShowEditModal(false)
+                      setEditingTypes({})
+                    }}
+                    className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded font-medium hover:bg-gray-300"
+                  >
+                    Cancel
+                  </button>
                 </div>
-              )}
+              </div>
             </div>
           )}
         </div>
