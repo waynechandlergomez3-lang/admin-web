@@ -23,7 +23,6 @@ import ToastContainer from './components/Toast'
 import ConfirmModal from './components/ConfirmModal'
 import { showConfirm } from './services/confirm'
 import FraudList from './components/FraudList'
-import MediaViewer from './components/MediaViewer'
 
 export default function App(){
   const [token, setToken] = useState(null)
