@@ -16,6 +16,7 @@ import Reports from './components/Reports'
 import Vehicles from './components/Vehicles'
 import Inventory from './components/Inventory'
 import MediaViewer from './components/MediaViewer'
+import ResponderManagement from './components/ResponderManagement'
 // ArticlePanel removed per request
 import BarangaysPanel from './components/BarangaysPanel'
 import AllEmergenciesHistory from './components/AllEmergenciesHistory'
@@ -122,6 +123,14 @@ export default function App(){
                     <div className="flex items-center gap-3">
                       <svg className="w-5 h-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M12 12a5 5 0 100-10 5 5 0 000 10z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       {sidebarOpen && <span>Users</span>}
+                    </div>
+                  </button>
+                </li>
+                <li>
+                  <button className={`w-full text-left px-3 py-2 rounded ${page==='responders'?'bg-slate-100':''}`} onClick={()=>setPage('responders')} aria-label="Responders">
+                    <div className="flex items-center gap-3">
+                      <svg className="w-5 h-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 21H4a2 2 0 01-2-2v-3a6 6 0 0112 0v3M16 7a4 4 0 11-8 0 4 4 0 018 0z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      {sidebarOpen && <span>Responders</span>}
                     </div>
                   </button>
                 </li>
@@ -295,6 +304,12 @@ export default function App(){
               {page === 'inventory' && (
                 <div>
                   <Inventory />
+                </div>
+              )}
+
+              {page === 'responders' && (
+                <div>
+                  <ResponderManagement />
                 </div>
               )}
 
