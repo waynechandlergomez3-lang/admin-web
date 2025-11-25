@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import api from '../services/api'
 import { API_BASE } from '../services/config'
-import { confirmAction } from '../services/confirm'
+import { showConfirm } from '../services/confirm'
 import { notify } from '../services/toast'
 
 // CACHE BUST: Force redeploy - Updated Nov 26 2025 12:00 UTC
@@ -63,7 +63,7 @@ export default function MediaViewer() {
   }
 
   const deleteMedia = async (id) => {
-    const confirmed = await confirmAction('Delete this submission permanently?')
+    const confirmed = await showConfirm({ title: 'Delete Submission', message: 'Delete this submission permanently?' })
     if (!confirmed) return
 
     try {
