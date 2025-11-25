@@ -17,6 +17,7 @@ import Vehicles from './components/Vehicles'
 import Inventory from './components/Inventory'
 import MediaViewer from './components/MediaViewer'
 import ResponderManagement from './components/ResponderManagement'
+import CitizenLocationShares from './components/CitizenLocationShares'
 // ArticlePanel removed per request
 import BarangaysPanel from './components/BarangaysPanel'
 import AllEmergenciesHistory from './components/AllEmergenciesHistory'
@@ -214,6 +215,14 @@ export default function App(){
                     </div>
                   </button>
                 </li>
+                <li>
+                  <button className={`w-full text-left px-3 py-2 rounded ${page==='locations'?'bg-slate-100':''}`} onClick={()=>setPage('locations')} aria-label="Location Shares">
+                    <div className="flex items-center gap-3">
+                      <svg className="w-5 h-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 21c-3.5-2-7-4-7-9 0-4.134 3.134-7.5 7-7.5s7 3.366 7 7.5c0 5-3.5 7-7 9z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><circle cx="12" cy="12" r="2" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      {sidebarOpen && <span>Location Shares</span>}
+                    </div>
+                  </button>
+                </li>
                 <li className="mt-4">
                   <button className="w-full text-left px-3 py-2 rounded bg-red-50 text-red-700" onClick={async ()=>{ 
                       const ok = await showConfirm({ title: 'Logout', message: 'Are you sure you want to logout?', confirmText: 'Logout', cancelText: 'Cancel' })
@@ -319,16 +328,17 @@ export default function App(){
                 </div>
               )}
 
+              {page === 'locations' && (
+                <div>
+                  <CitizenLocationShares />
+                </div>
+              )}
+
               {page === 'reports' && (
                 <div>
                   <Reports />
                 </div>
               )}
-
-              {page === 'media' && (
-                <div>
-                  <MediaViewer />
-                </div>
               )}
             </main>
 
