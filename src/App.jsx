@@ -15,6 +15,7 @@ import WeatherAlertPanel from './components/WeatherAlertPanel'
 import Reports from './components/Reports'
 import Vehicles from './components/Vehicles'
 import Inventory from './components/Inventory'
+import MediaViewer from './components/MediaViewer'
 // ArticlePanel removed per request
 import BarangaysPanel from './components/BarangaysPanel'
 import AllEmergenciesHistory from './components/AllEmergenciesHistory'
@@ -22,6 +23,7 @@ import ToastContainer from './components/Toast'
 import ConfirmModal from './components/ConfirmModal'
 import { showConfirm } from './services/confirm'
 import FraudList from './components/FraudList'
+import MediaViewer from './components/MediaViewer'
 
 export default function App(){
   const [token, setToken] = useState(null)
@@ -181,10 +183,26 @@ export default function App(){
                   </button>
                 </li>
                 <li>
+                  <button className={`w-full text-left px-3 py-2 rounded ${page==='media'?'bg-slate-100':''}`} onClick={()=>setPage('media')} aria-label="Media">
+                    <div className="flex items-center gap-3">
+                      <svg className="w-5 h-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><circle cx="12" cy="13" r="4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      {sidebarOpen && <span>Media Submissions</span>}
+                    </div>
+                  </button>
+                </li>
+                <li>
                   <button className={`w-full text-left px-3 py-2 rounded ${page==='reports'?'bg-slate-100':''}`} onClick={()=>setPage('reports')} aria-label="Reports">
                     <div className="flex items-center gap-3">
                       <svg className="w-5 h-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 17v-6a2 2 0 012-2h2a2 2 0 012 2v6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M3 7h18" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       {sidebarOpen && <span>Reports</span>}
+                    </div>
+                  </button>
+                </li>
+                <li>
+                  <button className={`w-full text-left px-3 py-2 rounded ${page==='media'?'bg-slate-100':''}`} onClick={()=>setPage('media')} aria-label="Citizen Media">
+                    <div className="flex items-center gap-3">
+                      <svg className="w-5 h-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><circle cx="12" cy="13" r="4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      {sidebarOpen && <span>Citizen Media</span>}
                     </div>
                   </button>
                 </li>
@@ -281,9 +299,21 @@ export default function App(){
                 </div>
               )}
 
+              {page === 'media' && (
+                <div>
+                  <MediaViewer />
+                </div>
+              )}
+
               {page === 'reports' && (
                 <div>
                   <Reports />
+                </div>
+              )}
+
+              {page === 'media' && (
+                <div>
+                  <MediaViewer />
                 </div>
               )}
             </main>
