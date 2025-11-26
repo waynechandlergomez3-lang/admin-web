@@ -245,7 +245,7 @@ export default function Vehicles(){
           <tbody>
             {filteredVehicles.map(v => (
               <tr key={v.id} className="hover:bg-slate-50">
-                <td className="p-2 font-mono text-xs">{String(v.id).slice(0,8)}</td>
+                <td className="p-2 font-mono text-xs">{v.id}</td>
                 <td className="p-2">{responders.find(r=>r.id===v.responderId)?.name || v.responderId}</td>
                 <td className="p-2">{v.plateNumber}</td>
                 <td className="p-2">{getVehicleIcon(v.model)}{v.model}</td>
