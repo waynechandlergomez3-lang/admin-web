@@ -16,6 +16,7 @@ import Reports from './components/Reports'
 import Vehicles from './components/Vehicles'
 import Inventory from './components/Inventory'
 import MediaViewer from './components/MediaViewer'
+import CitizenMediaReview from './components/CitizenMediaReview'
 import ResponderManagement from './components/ResponderManagement'
 import CitizenLocationShares from './components/CitizenLocationShares'
 // ArticlePanel removed per request
@@ -324,7 +325,7 @@ export default function App(){
 
               {page === 'media' && (
                 <div>
-                  <MediaViewer />
+                  <CitizenMediaReview onEmergencyCreated={fetchData} />
                 </div>
               )}
 
