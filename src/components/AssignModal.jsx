@@ -69,33 +69,26 @@ export default function AssignModal({ open, emergency, onClose = ()=>{}, onAssig
     )
   }
 
-  // Assign responder and mark vehicles as inactive
+  // Assign responder and mark vehicles as inactive via dispatch endpoint
   const acceptAssign = async () => {
     if(!selectedResponder || !emergency) return
     
     try {
-      // Assign responder
-      await api.post('/emergencies/assign', { 
+      // Use dispatch endpoint for atomic operation
+      const response = await api.post('/emergencies/dispatch', { 
         emergencyId: emergency.id, 
-        responderId: selectedResponder.id 
+        responderId: selectedResponder.id,
+        vehicleIds: selectedVehicles
       })
       
-      // Mark selected vehicles as inactive
-      if(selectedVehicles.length > 0) {
-        await Promise.all(
-          selectedVehicles.map(vehicleId => 
-            api.put(`/vehicles/${vehicleId}`, { active: false })
-          )
-        )
-      }
-      
-      toast.notify({ type: 'success', message: 'Assigned and vehicles dispatched' })
+      toast.notify({ type: 'success', message: 'Emergency dispatched successfully!' })
       setConfirmOpen(false)
       onAssigned()
       onClose()
     } catch(err) { 
       console.error(err)
-      toast.notify({ type: 'error', message: 'Failed to assign' }) 
+      const errorMsg = err.response?.data?.error || 'Failed to dispatch emergency'
+      toast.notify({ type: 'error', message: errorMsg }) 
     }
   }
 
