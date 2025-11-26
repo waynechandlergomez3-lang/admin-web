@@ -151,6 +151,15 @@ export default function Vehicles(){
 
   
 
+  const generateVehicleId = (vehicleType) => {
+    // Generate meaningful ID: TYPE-YYYYMMDD-COUNTER
+    const today = new Date()
+    const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '')
+    const typePrefix = vehicleType.substring(0, 3).toUpperCase()
+    const counter = String(Math.floor(Math.random() * 1000)).padStart(3, '0')
+    return `${typePrefix}-${dateStr}-${counter}`
+  }
+
   const save = async () => {
     setSaving(true)
     try{
@@ -158,7 +167,8 @@ export default function Vehicles(){
         await api.put(`/vehicles/${modalData.id}`, modalData)
         toast.notify({ type: 'success', message: 'Vehicle updated' })
       } else {
-        await api.post('/vehicles', modalData)
+        const dataToSend = { ...modalData, id: generateVehicleId(modalData.model) }
+        await api.post('/vehicles', dataToSend)
         toast.notify({ type: 'success', message: 'Vehicle created' })
       }
       setModalOpen(false)

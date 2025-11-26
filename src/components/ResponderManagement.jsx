@@ -20,6 +20,7 @@ export default function ResponderManagement() {
   const [selectedResponder, setSelectedResponder] = useState(null)
   const [editingTypes, setEditingTypes] = useState({})
   const [showEditModal, setShowEditModal] = useState(false)
+  const [selectedTypeFilter, setSelectedTypeFilter] = useState(null)
 
   useEffect(() => {
     fetchResponders()
@@ -45,6 +46,13 @@ export default function ResponderManagement() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const getFilteredResponders = () => {
+    if (!selectedTypeFilter) return responders
+    return responders.filter(r => 
+      Array.isArray(r.responderTypes) && r.responderTypes.includes(selectedTypeFilter)
+    )
   }
 
 
@@ -75,15 +83,38 @@ export default function ResponderManagement() {
     <div className="p-6 max-w-7xl mx-auto">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">Responder Management</h1>
 
-      {/* Stats Cards */}
+      {/* Stats Cards - Clickable Filters */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
         {RESPONDER_TYPES.map((type) => (
-          <div key={type} className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg p-4 shadow">
+          <div
+            key={type}
+            onClick={() => setSelectedTypeFilter(selectedTypeFilter === type ? null : type)}
+            className={`rounded-lg p-4 shadow cursor-pointer transition-all transform hover:scale-105 ${
+              selectedTypeFilter === type
+                ? 'bg-gradient-to-br from-red-600 to-red-700 text-white ring-2 ring-red-400'
+                : 'bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700'
+            }`}
+          >
             <p className="text-xs uppercase font-semibold opacity-90">{type.replace(/_/g, ' ')}</p>
             <p className="text-2xl font-bold">{stats[type] || 0}</p>
           </div>
         ))}
       </div>
+
+      {/* Active Filter Indicator */}
+      {selectedTypeFilter && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between">
+          <p className="text-sm text-red-800">
+            <strong>Filtered by:</strong> {selectedTypeFilter.replace(/_/g, ' ')} ({getFilteredResponders().length} responders)
+          </p>
+          <button
+            onClick={() => setSelectedTypeFilter(null)}
+            className="px-3 py-1 bg-red-200 hover:bg-red-300 text-red-800 rounded text-sm font-medium"
+          >
+            Clear Filter
+          </button>
+        </div>
+      )}
 
       {loading && (
         <div className="text-center py-12">
@@ -98,7 +129,19 @@ export default function ResponderManagement() {
         </div>
       )}
 
-      {!loading && responders.length > 0 && (
+      {!loading && responders.length > 0 && getFilteredResponders().length === 0 && (
+        <div className="text-center py-12 bg-yellow-50 rounded-lg border border-yellow-200">
+          <p className="text-yellow-800 font-medium">No responders have the selected type</p>
+          <button
+            onClick={() => setSelectedTypeFilter(null)}
+            className="mt-3 px-4 py-2 bg-yellow-200 hover:bg-yellow-300 text-yellow-800 rounded font-medium"
+          >
+            Clear Filter
+          </button>
+        </div>
+      )}
+
+      {!loading && getFilteredResponders().length > 0 && (
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -112,7 +155,7 @@ export default function ResponderManagement() {
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {responders.map((responder) => (
+                {getFilteredResponders().map((responder) => (
                   <tr key={responder.id} className="hover:bg-gray-50 transition">
                     <td className="px-6 py-4 font-medium text-gray-900">{responder.name}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{responder.email}</td>
