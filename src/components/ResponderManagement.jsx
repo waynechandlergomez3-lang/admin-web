@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import api from '../services/api'
-import { showConfirm } from '../services/confirm'
 import { notify } from '../services/toast'
 
 const RESPONDER_TYPES = [
@@ -20,14 +19,10 @@ export default function ResponderManagement() {
   const [stats, setStats] = useState({})
   const [selectedResponder, setSelectedResponder] = useState(null)
   const [editingTypes, setEditingTypes] = useState({})
-  const [emergencies, setEmergencies] = useState([])
-  const [showAssignModal, setShowAssignModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
-  const [selectedEmergency, setSelectedEmergency] = useState(null)
 
   useEffect(() => {
     fetchResponders()
-    fetchEmergencies()
   }, [])
 
   const fetchResponders = async () => {
@@ -52,15 +47,7 @@ export default function ResponderManagement() {
     }
   }
 
-  const fetchEmergencies = async () => {
-    try {
-      const res = await api.get('/emergencies')
-      const emergencyList = Array.isArray(res.data) ? res.data : res.data.data || []
-      setEmergencies(emergencyList.filter(e => e.status !== 'RESOLVED'))
-    } catch (err) {
-      console.error('Failed to fetch emergencies', err)
-    }
-  }
+
 
   const updateResponderTypes = async (responderId, types) => {
     try {
@@ -82,32 +69,7 @@ export default function ResponderManagement() {
     setEditingTypes({ ...editingTypes, [responderId]: updated })
   }
 
-  const assignResponderToEmergency = async (responderId, emergencyId) => {
-    try {
-      await api.post(`/emergencies/${emergencyId}/assign`, { responderId })
-      notify({ type: 'success', title: 'Success', message: 'Responder assigned to emergency' })
-      setShowAssignModal(false)
-      fetchResponders()
-      fetchEmergencies()
-    } catch (err) {
-      console.error('Failed to assign responder', err)
-      notify({ type: 'error', title: 'Error', message: 'Failed to assign responder' })
-    }
-  }
 
-  const toggleResponderStatus = async (responderId, currentStatus) => {
-    try {
-      await api.post('/users/update-responder-status', {
-        userId: responderId,
-        status: currentStatus === 'AVAILABLE' ? 'ON_DUTY' : 'AVAILABLE'
-      })
-      notify({ type: 'success', title: 'Success', message: 'Responder status updated' })
-      fetchResponders()
-    } catch (err) {
-      console.error('Failed to update responder status', err)
-      notify({ type: 'error', title: 'Error', message: 'Failed to update responder status' })
-    }
-  }
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -243,46 +205,7 @@ export default function ResponderManagement() {
         </div>
       )}
 
-      {/* Assign Modal (kept intact but unused since button removed) */}
-      {showAssignModal && selectedResponder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full">
-            <h2 className="text-2xl font-bold mb-4 text-gray-800">
-              Assign {selectedResponder.name} to Emergency
-            </h2>
-
-            {emergencies.length === 0 ? (
-              <p className="text-gray-600 mb-4">No active emergencies available</p>
-            ) : (
-              <div className="space-y-2 max-h-96 overflow-y-auto mb-4">
-                {emergencies.map((emergency) => (
-                  <div
-                    key={emergency.id}
-                    className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer"
-                    onClick={() => assignResponderToEmergency(selectedResponder.id, emergency.id)}
-                  >
-                    <div className="font-semibold text-gray-800">{emergency.type}</div>
-                    <div className="text-sm text-gray-600">{emergency.description}</div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      Status: {emergency.status} | Priority: {emergency.priority}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <button
-              onClick={() => {
-                setShowAssignModal(false)
-                setSelectedResponder(null)
-              }}
-              className="w-full px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 font-medium"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Assign Modal removed */}
     </div>
   )
 }
