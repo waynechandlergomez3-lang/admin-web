@@ -44,6 +44,20 @@ function renderPayload(eventType, payload){
         const at = payload.acceptedAt ? new Date(payload.acceptedAt).toLocaleString() : (payload.ts ? new Date(payload.ts).toLocaleString() : '-')
         return <div>Responder <span className="font-semibold">{who}</span> accepted assignment at <span title={payload.acceptedAt} className="font-mono text-xs">{at}</span></div>
       }
+      case 'DISPATCHED': {
+        const who = payload.responderName || payload.responderId || 'Unknown'
+        const vehCount = payload.vehicleIds ? payload.vehicleIds.length : 0
+        const at = payload.dispatchedAt ? new Date(payload.dispatchedAt).toLocaleString() : '-'
+        return (
+          <div>
+            <div>Responder <span className="font-semibold">{who}</span> dispatched with <span className="font-semibold">{vehCount} vehicle(s)</span></div>
+            <div className="text-xs text-slate-500 mt-1">Dispatched at <span className="font-mono">{at}</span></div>
+            {vehCount > 0 && payload.vehicleIds && (
+              <div className="text-xs text-slate-500 mt-1">Vehicles: {payload.vehicleIds.join(', ')}</div>
+            )}
+          </div>
+        )
+      }
       default:
         return <pre className="whitespace-pre-wrap text-xs">{JSON.stringify(payload, null, 2)}</pre>
     }

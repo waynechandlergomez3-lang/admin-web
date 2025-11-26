@@ -170,11 +170,38 @@ export default function Dashboard({ emergencies = [], users = [], vehicles = [],
                   <div className={`text-sm font-semibold ${priority === 'high' || priority === '1' ? 'text-rose-400' : priority === 'medium' || priority === '2' ? 'text-amber-400' : 'text-emerald-400'}`}>
                     {String(e.priority || '-').toUpperCase()}
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center">
                     <button className="px-3 py-1 bg-slate-700 rounded text-slate-200 hover:bg-slate-600 transition-colors" onClick={() => { window.dispatchEvent(new CustomEvent('openHistory', { detail: { id: e.id } })) }}>History</button>
-                    <button className="px-3 py-1 rounded text-white" style={{ backgroundColor: e.responderId ? '#7f1d1d' : '#991b1b' }} disabled={!!e.responderId} onClick={() => onOpenAssign(e)}>
-                      Assign
-                    </button>
+                    {e.status === 'PENDING' && (
+                      <button className="px-3 py-1 rounded text-white bg-amber-600 hover:bg-amber-700 transition-colors" onClick={() => onOpenAssign(e)}>
+                        Pending
+                      </button>
+                    )}
+                    {e.status === 'IN_PROGRESS' && (
+                      <div className="px-3 py-1 rounded text-white bg-blue-600 font-medium">
+                        In Progress
+                      </div>
+                    )}
+                    {e.status === 'ACCEPTED' && (
+                      <div className="px-3 py-1 rounded text-white bg-cyan-600 font-medium">
+                        Accepted
+                      </div>
+                    )}
+                    {e.status === 'ARRIVED' && (
+                      <div className="px-3 py-1 rounded text-white bg-green-600 font-medium">
+                        Arrived
+                      </div>
+                    )}
+                    {e.status === 'ACKNOWLEDGED' && (
+                      <button className="px-3 py-1 rounded text-white bg-sky-600 hover:bg-sky-700 transition-colors" onClick={() => onOpenAssign(e)}>
+                        Acknowledged
+                      </button>
+                    )}
+                    {e.status === 'RESOLVED' && (
+                      <div className="px-3 py-1 rounded text-white bg-slate-600 font-medium">
+                        Resolved
+                      </div>
+                    )}
                   </div>
                 </div>
               </li>
