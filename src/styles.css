@@ -1,220 +1,122 @@
 @tailwind base;
 @tailwind components;
+@tailwind components;
 @tailwind utilities;
 
-/* Global Styles */
-* {
-  transition: color 150ms ease;
-}
+/* Modern theme tweaks */
+body { background-color: #f8fafc; color: #0f172a; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
+.container { max-width: 1180px; margin: 1.5rem auto; padding: 0 1.25rem }
+.header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem }
 
-body {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-  color: #e6eef8;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-  overflow-x: hidden;
-}
+.custom-marker span { display:inline-block }
 
-/* Scrollbar Styling */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
+/* utility for urgent badges */
+.badge-urgent { background:#ef4444; color:#fff; padding:.25rem .5rem; border-radius:9999px; font-size:.75rem; font-weight:700 }
+.badge-medium { background:#f59e0b; color:#fff; padding:.25rem .5rem; border-radius:9999px; font-size:.75rem; font-weight:700 }
+.badge-normal { background:#0ea5a0; color:#fff; padding:.25rem .5rem; border-radius:9999px; font-size:.75rem; font-weight:700 }
 
-::-webkit-scrollbar-track {
-  background: #0f172a;
-}
+/* Light-theme overrides: keep Tailwind classes intact but render components in a light style
+	and make hover states slightly darker for better visibility. Apply by adding
+	the `light-theme` class to a wrapper (we add it at the app root). */
+.light-theme { background-color: #f8fafc; color: #0f172a; }
 
-::-webkit-scrollbar-thumb {
-  background: #475569;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
-}
-
-/* Emergency Theme Color Variables */
-:root {
-  --color-primary-red: #dc2626;
-  --color-primary-orange: #ea580c;
-  --color-accent-amber: #ca8a04;
-  --color-accent-emerald: #10b981;
-  --color-accent-sky: #0284c7;
-}
-
-/* Utility Classes */
-.container {
-  max-width: 1180px;
-  margin: 1.5rem auto;
-  padding: 0 1.25rem;
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-}
-
-/* Emergency Badges */
-.badge-urgent {
-  background-color: #dc2626;
-  color: white;
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  display: inline-block;
-}
-
-.badge-medium {
-  background-color: #ea580c;
-  color: white;
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  display: inline-block;
-}
-
-.badge-normal {
-  background-color: #14b8a6;
-  color: white;
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  display: inline-block;
-}
-
-/* Emergency Cards */
-.emergency-card {
-  background-color: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-  transition: all 150ms ease;
-}
-
-.emergency-card:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-  background-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.15);
-}
-
-/* Emergency Buttons */
-.emergency-btn-primary {
-  background: linear-gradient(to right, #dc2626, #ea580c);
-  color: white;
-  font-weight: 600;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  transition: all 150ms ease;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  transform: scale(1);
-  border: none;
-  cursor: pointer;
-  display: inline-block;
-}
-
-.emergency-btn-primary:hover {
-  background: linear-gradient(to right, #b91c1c, #c2410c);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
-  transform: scale(1.05);
-}
-
-.emergency-btn-primary:active {
-  transform: scale(0.95);
-}
-
-.emergency-btn-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: scale(1);
-}
-
-.emergency-btn-secondary {
-  background-color: #475569;
-  color: #cbd5e1;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  transition: background-color 150ms ease;
-  border: 1px solid #64748b;
-  cursor: pointer;
-  display: inline-block;
-}
-
-.emergency-btn-secondary:hover {
-  background-color: #374151;
-  border-color: #94a3b8;
-}
-
-.emergency-btn-secondary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Animations */
-@keyframes pulse-emergency {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.8;
-  }
-}
-
-.pulse-emergency {
-  animation: pulse-emergency 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Theme Overrides */
-.light-theme {
-  background-color: #f8fafc;
-  color: #0f172a;
-}
-
+/* Panels/cards: replace commonly-used dark utility classes with light backgrounds */
 .light-theme .bg-slate-950,
 .light-theme .bg-slate-900,
 .light-theme .bg-slate-800,
-.light-theme .bg-slate-700 {
-  background-color: #ffffff !important;
-  color: #0f172a !important;
-}
+.light-theme .bg-slate-700 { background-color: #ffffff !important; color: #0f172a !important; }
 
-.light-theme .text-white {
-  color: #0f172a !important;
-}
-
+/* Text color tweaks inside light theme */
+.light-theme .text-white { color: #0f172a !important; }
 .light-theme .text-slate-300,
 .light-theme .text-slate-400,
-.light-theme .text-slate-500 {
-  color: #475569 !important;
+.light-theme .text-slate-500 { color: #475569 !important; }
+
+/* Border tweaks */
+.light-theme .border-slate-700 { border-color: #e2e8f0 !important; }
+.light-theme .divide-slate-700 { --tw-divide-opacity: 1; border-color: rgba(226,232,240,var(--tw-divide-opacity)) !important; }
+
+/* Hover states: make hovers darker than the light background for clearer contrast.
+	Tailwind uses utility class names with colons; escape them in CSS selectors. */
+.light-theme .hover\:bg-slate-800:hover,
+.light-theme .hover\:bg-slate-700:hover,
+.light-theme .hover\:bg-slate-600:hover,
+.light-theme .hover\:bg-slate-900:hover,
+.light-theme .hover\:bg-slate-950:hover,
+.light-theme .hover\:bg-white:hover,
+.light-theme .hover\:bg-slate-100:hover,
+.light-theme .hover\:bg-slate-200:hover,
+.light-theme .hover\:bg-slate-300:hover {
+  background-color: #e2e8f0 !important; /* slate-200: slightly darker than white */
 }
 
-.light-theme .border-slate-700 {
-  border-color: #e2e8f0 !important;
+/* For explicit hover:bg-* classes (non-prefixed by hover:) we also target the literal class name
+	used on elements such as `hover:bg-slate-800` which becomes an actual class on the element. */
+.light-theme .hover:bg-slate-800:hover,
+.light-theme .hover:bg-slate-700:hover,
+.light-theme .hover:bg-slate-600:hover {
+  background-color: #e2e8f0 !important;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  body {
-    font-size: 14px;
-  }
+/* Make focus/active borders visible on light theme */
+.light-theme .focus\:border-slate-400:focus { border-color: #94a3b8 !important; }
 
-  .emergency-card {
-    padding: 1rem;
-  }
+/* Minimal button adjustments for better visibility */
+.light-theme .bg-slate-700 { background-color: #f1f5f9 !important; }
+.light-theme .bg-slate-600 { background-color: #e2e8f0 !important; }
 
-  .container {
-    padding: 0 1rem;
-  }
+/* Dark-theme: placed after light-theme so it wins when both classes are present.
+	 Use this to opt-in specific pages/components to the dark appearance. */
+.dark-theme { background-color: #0f172a; color: #e6eef8; }
+.dark-theme .bg-slate-950,
+.dark-theme .bg-slate-900,
+.dark-theme .bg-slate-800,
+.dark-theme .bg-slate-700 { background-color: #0b1220 !important; color: #e6eef8 !important; }
+.dark-theme .text-white { color: #e6eef8 !important; }
+.dark-theme .text-slate-300,
+.dark-theme .text-slate-400,
+.dark-theme .text-slate-500 { color: #94a3b8 !important; }
+.dark-theme .border-slate-700 { border-color: #1f2937 !important; }
+.dark-theme .divide-slate-700 { --tw-divide-opacity: 1; border-color: rgba(31,41,55,var(--tw-divide-opacity)) !important; }
+
+/* Dark hover states: make them slightly lighter than panel background to be visible */
+.dark-theme .hover\:bg-slate-800:hover,
+.dark-theme .hover\:bg-slate-700:hover,
+.dark-theme .hover\:bg-slate-600:hover,
+.dark-theme .hover\:bg-slate-900:hover,
+.dark-theme .hover\:bg-slate-950:hover {
+	background-color: #0f172a !important; /* keep hover subtle on dark panels */
 }
+
+.dark-theme .hover:bg-slate-800:hover,
+.dark-theme .hover:bg-slate-700:hover,
+.dark-theme .hover:bg-slate-600:hover {
+	background-color: #0f172a !important;
+}
+
+/* Stronger, app-wide hover rules for clickable items so hovers are darker and more visible.
+	 Targets common interactive elements and Tailwind hover-* utility classes. */
+.light-theme button:hover,
+.light-theme a:hover,
+.light-theme li:hover,
+.light-theme [role="button"]:hover,
+.light-theme .hover\:bg-slate-800:hover,
+.light-theme .hover\:bg-slate-700:hover,
+.light-theme .hover\:bg-slate-600:hover,
+.light-theme .hover\:bg-slate-900:hover {
+	background-color: #94a3b8 !important; /* slate-400 — noticeably darker than white */
+	color: inherit !important;
+}
+
+.dark-theme button:hover,
+.dark-theme a:hover,
+.dark-theme li:hover,
+.dark-theme [role="button"]:hover,
+.dark-theme .hover\:bg-slate-800:hover,
+.dark-theme .hover\:bg-slate-700:hover,
+.dark-theme .hover\:bg-slate-600:hover,
+.dark-theme .hover\:bg-slate-900:hover {
+	background-color: #111827 !important; /* slate-900-ish — visible on dark panels */
+	color: inherit !important;
+}
+
