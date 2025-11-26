@@ -50,15 +50,13 @@ export default function Dashboard({ emergencies = [], users = [], vehicles = [],
     <div className="p-3 rounded-md bg-slate-700 text-white w-11 h-11 flex items-center justify-center">{children}</div>
   )
 
-  const card = (title, value, subtitle, IconElem, accent = 'bg-slate-700') => (
-    <div className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-4 hover:border-white/20 hover:bg-white/10 transition-all shadow-2xl">
-      <div className="flex items-center gap-3 mb-2">
-        <div className={`p-3 rounded-xl ${accent} text-white flex-shrink-0`}>{IconElem}</div>
-        <div>
-          <div className="text-xs uppercase font-semibold text-slate-400 tracking-wider">{title}</div>
-          <div className="text-3xl font-bold text-white">{value}</div>
-          {subtitle && <div className="text-xs text-slate-500 mt-1">{subtitle}</div>}
-        </div>
+  const card = (title, value, subtitle, IconElem, accent = 'bg-slate-100') => (
+    <div className="flex-1 bg-white rounded-xl shadow p-4 flex items-center gap-4 border border-slate-200 hover:bg-slate-50 hover:shadow-md transition-all">
+      <div className={`p-3 rounded-md ${accent} text-white`}>{IconElem}</div>
+      <div>
+        <div className="text-sm text-slate-500">{title}</div>
+        <div className="text-2xl font-bold text-slate-800">{value}</div>
+        {subtitle && <div className="text-xs text-slate-500 mt-1">{subtitle}</div>}
       </div>
     </div>
   )
@@ -113,268 +111,257 @@ export default function Dashboard({ emergencies = [], users = [], vehicles = [],
   )
 
   return (
-  <div className="min-h-screen bg-gradient-to-br from-slate-950 via-red-950/20 to-slate-950 p-6">
-      {/* Header Section */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-orange-500 rounded-lg flex items-center justify-center shadow-lg">
-            <span className="text-xl">🚨</span>
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-white">Emergency Dashboard</h1>
-            <p className="text-slate-400">Real-time monitoring & response coordination</p>
-          </div>
+  <div className="space-y-6 bg-slate-950 min-h-screen p-4 dark-theme">
+      {/* Emergencies shown on top */}
+      <div className="bg-slate-900 rounded-xl shadow-lg p-4 border border-slate-700">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-lg font-semibold text-white">Emergencies (top priority)</h3>
+          <div className="text-sm text-slate-400">{filteredEmergencies.length} shown</div>
         </div>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
-        {card('Active Emergencies', activeEmergencies, `${totalEmergencies} total`, <ChartIcon />, 'bg-gradient-to-br from-red-600 to-red-700')}
-        {card('In Progress', inProgress, 'Being handled', <MapIconSvg />, 'bg-gradient-to-br from-orange-600 to-orange-700')}
-        {card('Unassigned', unassignedEmergencies, 'Need assignment', <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v9M6 12h12" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>, 'bg-gradient-to-br from-amber-600 to-amber-700')}
-        {card('Available Responders', availableResponders, `${totalResponders} total`, <UsersIcon />, 'bg-gradient-to-br from-emerald-600 to-emerald-700')}
-        {card('Fleet Status', (vehicles || []).filter(v => v.active).length, `${(vehicles || []).length} total`, <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 13h14l2 3v3H3v-6zM7 13V8h4v5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>, 'bg-gradient-to-br from-sky-600 to-sky-700')}
-        {card('Inventory', inventorySummary.totalItems, `${inventorySummary.totalQuantity} units`, <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 7h18M3 12h18M3 17h18" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>, 'bg-gradient-to-br from-violet-600 to-violet-700')}
-      </div>
-
-      {/* Main Content Area */}
-      <div className="grid lg:grid-cols-3 gap-6">
-        
-        {/* Emergencies List - Takes 2 columns */}
-        <div className="lg:col-span-2">
-          <div className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-6 shadow-2xl">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-red-600/20 rounded-lg flex items-center justify-center">
-                  <span className="text-lg">📋</span>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white">Active Emergencies</h3>
-                  <p className="text-sm text-slate-400">{filteredEmergencies.length} incidents</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Filters */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6 p-4 bg-slate-900/50 rounded-xl border border-slate-800">
-              <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-2">TYPE</label>
-                <select value={dashboardTypeFilter} onChange={(e)=>setDashboardTypeFilter(e.target.value)} className="w-full px-3 py-2 border border-slate-700 rounded-lg bg-slate-800 text-white text-sm hover:border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/50 transition">
-                  <option value="">All Types</option>
-                  {(() => {
-                    const s = new Set(); (users||[]).forEach(u => { if(Array.isArray(u.responderTypes)) u.responderTypes.forEach(t=> t && s.add(String(t).toUpperCase())) }); return Array.from(s).map(t => <option key={t} value={t}>{t}</option>)
-                  })()}
-                </select>
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-2">PRIORITY</label>
-                <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)} className="w-full px-3 py-2 border border-slate-700 rounded-lg bg-slate-800 text-white text-sm hover:border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/50 transition">
-                  <option value="ALL">All Priority</option>
-                  <option value="1">🔴 High</option>
-                  <option value="2">🟠 Medium</option>
-                  <option value="3">🟡 Low</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-2">STATUS</label>
-                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-full px-3 py-2 border border-slate-700 rounded-lg bg-slate-800 text-white text-sm hover:border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/50 transition">
-                  <option value="ALL">All Status</option>
-                  <option value="PENDING">⏳ Pending</option>
-                  <option value="IN_PROGRESS">⚡ In Progress</option>
-                  <option value="RESOLVED">✓ Resolved</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-2">BARANGAY</label>
-                <select value={barangayFilter} onChange={(e) => setBarangayFilter(e.target.value)} className="w-full px-3 py-2 border border-slate-700 rounded-lg bg-slate-800 text-white text-sm hover:border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/50 transition">
-                  <option value="ALL">All Areas</option>
-                  {barangays.map(b => <option key={b} value={b}>{b}</option>)}
-                </select>
-              </div>
-              <div className="col-span-2 md:col-span-2 flex gap-2">
-                <button className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors text-sm font-medium" onClick={() => { setPriorityFilter('ALL'); setStatusFilter('ALL'); setBarangayFilter('ALL') }}>Reset Filters</button>
-              </div>
-            </div>
-
-            {/* Emergencies List */}
-            <div className="space-y-3 max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-900">
-              {filteredEmergencies.slice(0, 15).map(e => {
-                const priority = String(e.priority).toLowerCase()
-                const residentName = users.find(u => u.id === e.userId)?.name || e.user?.name || e.userId
-                const responderName = users.find(u => u.id === e.responderId)?.name || e.responder?.name || 'Unassigned'
-                const priorityBg = priority === 'high' || priority === '1' ? 'bg-red-900/30 border-red-500/50' : priority === 'medium' || priority === '2' ? 'bg-orange-900/30 border-orange-500/50' : 'bg-yellow-900/30 border-yellow-500/50'
-                const priorityBadge = priority === 'high' || priority === '1' ? '🔴' : priority === 'medium' || priority === '2' ? '🟠' : '🟡'
-                return (
-                  <div key={e.id} className={`p-4 rounded-xl border border-slate-700 ${priorityBg} hover:border-slate-500 hover:bg-slate-900/30 transition-all cursor-pointer`}>
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-lg">{priorityBadge}</span>
-                          <span className="font-bold text-white">{e.type}</span>
-                          <span className="text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded">{e.status}</span>
-                        </div>
-                        <p className="text-sm text-slate-300">{e.description || 'No description'}</p>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xs text-slate-500">{new Date(e.createdAt).toLocaleTimeString()}</div>
-                        <div className="text-xs text-slate-500">{new Date(e.createdAt).toLocaleDateString()}</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between text-xs text-slate-400">
-                      <div>
-                        <span className="text-slate-300 font-medium">{residentName}</span>
-                        <span className="text-slate-500"> → </span>
-                        <span className={`font-medium ${e.responderId ? 'text-emerald-400' : 'text-amber-400'}`}>{responderName}</span>
-                      </div>
-                      <div className="flex gap-2">
-                        <button className="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded text-xs transition" onClick={() => { window.dispatchEvent(new CustomEvent('openHistory', { detail: { id: e.id } })) }}>View</button>
-                        {!e.responderId && <button className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs transition font-medium" onClick={() => onOpenAssign(e)}>Assign</button>}
-                      </div>
-                    </div>
+        <div className="flex items-center gap-3 mb-3">
+          <label className="text-sm text-slate-300">Type:</label>
+          <select value={dashboardTypeFilter} onChange={(e)=>setDashboardTypeFilter(e.target.value)} className="px-2 py-1 border border-slate-600 rounded bg-slate-800 text-slate-200 hover:border-slate-500 focus:border-slate-400">
+            <option value="">All</option>
+            {(() => {
+              // derive types from users
+              const s = new Set(); (users||[]).forEach(u => { if(Array.isArray(u.responderTypes)) u.responderTypes.forEach(t=> t && s.add(String(t).toUpperCase())) }); return Array.from(s).map(t => <option key={t} value={t}>{t}</option>)
+            })()}
+          </select>
+          
+          <label className="text-sm text-slate-300">Priority:</label>
+          <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)} className="px-2 py-1 border border-slate-600 rounded bg-slate-800 text-slate-200 hover:border-slate-500 focus:border-slate-400">
+            <option value="ALL">All</option>
+            <option value="1">High (1)</option>
+            <option value="2">Medium (2)</option>
+            <option value="3">Low (3)</option>
+          </select>
+          <label className="text-sm text-slate-300">Status:</label>
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="px-2 py-1 border border-slate-600 rounded bg-slate-800 text-slate-200 hover:border-slate-500 focus:border-slate-400">
+            <option value="ALL">All</option>
+            <option value="PENDING">Pending</option>
+            <option value="IN_PROGRESS">In Progress</option>
+            <option value="RESOLVED">Resolved</option>
+          </select>
+          <label className="text-sm text-slate-300">Barangay:</label>
+          <select value={barangayFilter} onChange={(e) => setBarangayFilter(e.target.value)} className="px-2 py-1 border border-slate-600 rounded bg-slate-800 text-slate-200 hover:border-slate-500 focus:border-slate-400">
+            <option value="ALL">All</option>
+            {barangays.map(b => <option key={b} value={b}>{b}</option>)}
+          </select>
+          <button className="px-3 py-1 bg-slate-700 rounded hover:bg-slate-600 transition-colors text-slate-200" onClick={() => { setPriorityFilter('ALL'); setStatusFilter('ALL'); setBarangayFilter('ALL') }}>Clear</button>
+        </div>
+        <ul className="divide-y divide-slate-700 max-h-80 overflow-auto">
+          {filteredEmergencies.slice(0, 10).map(e => {
+            const priority = String(e.priority).toLowerCase()
+            const residentName = users.find(u => u.id === e.userId)?.name || e.user?.name || e.userId
+            const responderName = users.find(u => u.id === e.responderId)?.name || e.responder?.name || '—'
+            return (
+              <li key={e.id} className="py-3 flex items-start justify-between hover:bg-slate-800 p-2 rounded transition-colors">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3">
+                    <div className="font-medium text-white">{e.type}</div>
+                    <div className="text-xs text-slate-500">{new Date(e.createdAt).toLocaleString()}</div>
                   </div>
-                )
-              })}
-              {filteredEmergencies.length === 0 && (
-                <div className="text-center py-12">
-                  <p className="text-slate-500">✓ No emergencies matching filters</p>
+                  <div className="text-sm text-slate-400 mt-1">{e.description || '—'}</div>
+                  <div className="text-xs text-slate-500 mt-2">
+                    Resident: <span className="font-medium text-slate-300">{residentName}</span> • Responder: <span className="font-medium text-slate-300">{responderName}</span>
+                  </div>
                 </div>
-              )}
-            </div>
+                <div className="flex flex-col items-end gap-2">
+                  <div className={`text-sm font-semibold ${priority === 'high' || priority === '1' ? 'text-rose-400' : priority === 'medium' || priority === '2' ? 'text-amber-400' : 'text-emerald-400'}`}>
+                    {String(e.priority || '-').toUpperCase()}
+                  </div>
+                  <div className="flex gap-2">
+                    <button className="px-3 py-1 bg-slate-700 rounded text-slate-200 hover:bg-slate-600 transition-colors" onClick={() => { window.dispatchEvent(new CustomEvent('openHistory', { detail: { id: e.id } })) }}>History</button>
+                    <button className="px-3 py-1 rounded text-white" style={{ backgroundColor: e.responderId ? '#7f1d1d' : '#991b1b' }} disabled={!!e.responderId} onClick={() => onOpenAssign(e)}>
+                      Assign
+                    </button>
+                  </div>
+                </div>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        {card('Active Emergencies', activeEmergencies, `${totalEmergencies} total`, <ChartIcon />, 'bg-red-900')}
+        {card('In Progress', inProgress, 'Being handled by responders', <MapIconSvg />, 'bg-orange-900')}
+        {card('Unassigned', unassignedEmergencies, 'Awaiting assignment', <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v9M6 12h12" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>, 'bg-yellow-900')}
+
+        {/* Vehicle summary card */}
+        {(() => {
+          const totalVehicles = (vehicles || []).length
+          const activeVehicles = (vehicles || []).filter(v => v.active).length
+          const assignedVehicles = (vehicles || []).filter(v => v.responderId).length
+          const availableVehicles = (vehicles || []).filter(v => v.active && !v.responderId).length
+          return card('Fleet', totalVehicles, `${activeVehicles} active • ${assignedVehicles} assigned • ${availableVehicles} available`, <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 13h14l2 3v3H3v-6zM7 13V8h4v5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>, 'bg-sky-800')
+        })()}
+
+        {card('Available Responders', availableResponders, `${totalResponders} total • ${vehicleUnavailable} vehicle unavailable`, <UsersIcon />, 'bg-emerald-900')}
+        {card('Inventory', inventorySummary.totalItems, `${inventorySummary.totalQuantity} total units`, <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 7h18M3 12h18M3 17h18" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>, 'bg-violet-900')}
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-4">
+
+        {/* Inventory snapshot panel */}
+        <div className="bg-white rounded-xl shadow p-4 border border-slate-200 hover:bg-slate-50 transition-all">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-slate-800">Inventory Snapshot</h3>
+            <div className="text-sm text-slate-500">{inventorySummary.totalItems} items</div>
           </div>
-        </div>
 
-        {/* Right Sidebar */}
-        <div className="space-y-6">
-          {/* Inventory snapshot panel */}
-          <div className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-6 shadow-2xl">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-violet-600/20 rounded-lg flex items-center justify-center">
-                <span className="text-lg">📦</span>
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-white">Inventory</h3>
-                <p className="text-xs text-slate-400">{inventorySummary.totalItems} items • {inventorySummary.totalQuantity} units</p>
-              </div>
-            </div>
+          <div className="flex gap-2 items-center mb-2">
+            <label className="text-sm">Responder:</label>
+            <select
+              value={invFilterResponder}
+              onChange={(e) => setInvFilterResponder(e.target.value)}
+              className="border px-2 py-1 rounded"
+            >
+              <option value="">All</option>
+              { (users||[]).filter(u => u.role === 'RESPONDER' && (dashboardTypeFilter === '' || !Array.isArray(u.responderTypes) || u.responderTypes.length === 0 || (Array.isArray(u.responderTypes) && (u.responderTypes||[]).map(t=>String(t).toUpperCase()).includes(String(dashboardTypeFilter).toUpperCase())))).map((r) => (
+                <option key={r.id} value={r.id}>{r.name || r.email}</option>
+              ))}
+            </select>
 
-            <div className="grid grid-cols-2 gap-2 mb-4">
-              <select
-                value={invFilterResponder}
-                onChange={(e) => setInvFilterResponder(e.target.value)}
-                className="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white text-sm hover:border-violet-500 focus:border-violet-500 transition"
-              >
-                <option value="">All Responders</option>
-                { (users||[]).filter(u => u.role === 'RESPONDER' && (dashboardTypeFilter === '' || !Array.isArray(u.responderTypes) || u.responderTypes.length === 0 || (Array.isArray(u.responderTypes) && (u.responderTypes||[]).map(t=>String(t).toUpperCase()).includes(String(dashboardTypeFilter).toUpperCase())))).map((r) => (
-                  <option key={r.id} value={r.id}>{r.name || r.email}</option>
-                ))}
-              </select>
-
-              <select
-                value={invFilterAvailability}
-                onChange={(e) => setInvFilterAvailability(e.target.value)}
-                className="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white text-sm hover:border-violet-500 focus:border-violet-500 transition"
-              >
-                <option value="all">All</option>
-                <option value="available">Available</option>
-                <option value="unavailable">Unavailable</option>
-              </select>
-            </div>
+            <label className="text-sm">Availability:</label>
+            <select
+              value={invFilterAvailability}
+              onChange={(e) => setInvFilterAvailability(e.target.value)}
+              className="border px-2 py-1 rounded"
+            >
+              <option value="all">All</option>
+              <option value="available">Available</option>
+              <option value="unavailable">Unavailable</option>
+            </select>
 
             <button
-              className="w-full bg-violet-600 hover:bg-violet-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition mb-4"
+              className="bg-blue-500 text-white px-3 py-1 rounded"
               onClick={() => loadInventoryItems(invFilterResponder, invFilterAvailability)}
             >
-              Refresh Inventory
+              Refresh
             </button>
+          </div>
 
-            <div className="max-h-64 overflow-y-auto">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="border-b border-slate-700">
-                    <th className="text-left text-slate-400 py-2">Responder</th>
-                    <th className="text-left text-slate-400 py-2">Item</th>
-                    <th className="text-left text-slate-400 py-2">Qty</th>
+          <p className="text-sm text-slate-600">Total Quantity: {inventorySummary.totalQuantity}</p>
+
+          <div className="mt-2">
+            <table className="w-full text-sm">
+              <thead>
+                <tr>
+                  <th className="text-left">Responder</th>
+                  <th className="text-left">Name</th>
+                  <th className="text-left">Qty</th>
+                  <th className="text-left">Available</th>
+                </tr>
+              </thead>
+              <tbody>
+                {inventoryItems.slice(0, 6).map((it) => (
+                  <tr key={it.id} className="border-t">
+                    <td>{it.responder?.name || it.responder?.email || '—'}</td>
+                    <td>{it.name}</td>
+                    <td>{it.quantity}</td>
+                    <td>{it.available ? 'Yes' : 'No'}</td>
                   </tr>
-                </thead>
-                <tbody className="text-slate-300">
-                  {inventoryItems.slice(0, 8).map((it) => (
-                    <tr key={it.id} className="border-b border-slate-800 hover:bg-slate-800/50">
-                      <td className="py-2">{it.responder?.name || '—'}</td>
-                      <td className="py-2">{it.name}</td>
-                      <td className="py-2">{it.quantity}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow p-4 border border-slate-200 hover:bg-slate-50 transition-all">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-white">Evacuation Centers</h3>
+            <div className="text-sm text-slate-500">{evacCenters.length} total</div>
           </div>
 
-          {/* Evacuation Centers */}
-          <div className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-6 shadow-2xl">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-orange-600/20 rounded-lg flex items-center justify-center">
-                <span className="text-lg">🏢</span>
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-white">Evacuation Centers</h3>
-                <p className="text-xs text-slate-400">{evacCenters.length} locations</p>
-              </div>
-            </div>
+          <ul className="space-y-3 max-h-72 overflow-auto">
+            {evacCenters.slice(0, 6).map(c => {
+              const cap = c.capacity || 0
+              const occ = c.currentCount || 0
+              const pct = cap > 0 ? Math.round((occ / cap) * 100) : 0
+              const available = Math.max(0, cap - occ)
+              const statusOpen = Boolean(c.isActive)
+              return (
+                <li key={c.id} className="p-3 bg-white rounded-lg hover:bg-slate-50 transition-colors border border-slate-200">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-md bg-rose-50 text-rose-600 w-12 h-12 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+                        <circle cx="12" cy="9" r="2.5" strokeWidth="1.5" />
+                      </svg>
+                    </div>
 
-            <ul className="space-y-3 max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-900">
-              {evacCenters.slice(0, 6).map(c => {
-                const cap = c.capacity || 0
-                const occ = c.currentCount || 0
-                const pct = cap > 0 ? Math.round((occ / cap) * 100) : 0
-                const available = Math.max(0, cap - occ)
-                const statusOpen = Boolean(c.isActive)
-                return (
-                  <li key={c.id} className="p-3 bg-slate-800/50 rounded-lg hover:bg-slate-800 border border-slate-700 transition">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <div className="font-semibold text-white">{c.name}</div>
-                        <div className="text-xs text-slate-400">{c.address || `${c.location?.lat?.toFixed(4)}, ${c.location?.lng?.toFixed(4)}`}</div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-semibold text-slate-800">{c.name}</div>
+                          <div className="text-xs text-slate-500">{c.address || `${c.location?.lat?.toFixed(4)}, ${c.location?.lng?.toFixed(4)}`}</div>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <div className={`text-xs font-semibold px-2 py-1 rounded ${statusOpen ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>{statusOpen ? 'Open' : 'Closed'}</div>
+                          <div className="text-xs text-slate-500 mt-2">{available} avail • {pct}%</div>
+                        </div>
                       </div>
-                      <span className={`text-xs px-2 py-1 rounded font-medium ${statusOpen ? 'bg-emerald-600/20 text-emerald-300' : 'bg-slate-600/20 text-slate-300'}`}>{statusOpen ? '✓ Open' : 'Closed'}</span>
-                    </div>
-                    <div className="w-full h-2 bg-slate-700 rounded overflow-hidden mb-2">
-                      <div className="h-2 bg-gradient-to-r from-emerald-600 to-emerald-500" style={{ width: `${Math.min(100, pct)}%` }} />
-                    </div>
-                    <div className="flex items-center justify-between text-xs text-slate-400">
-                      <span>{occ}/{cap} occupants</span>
-                      <span>{available} available</span>
-                    </div>
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
 
-          {/* Vehicles Snapshot */}
-          <div className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-6 shadow-2xl">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-sky-600/20 rounded-lg flex items-center justify-center">
-                <span className="text-lg">🚗</span>
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-white">Fleet Status</h3>
-                <p className="text-xs text-slate-400">{(vehicles||[]).length} vehicles</p>
-              </div>
-            </div>
-
-            <ul className="space-y-2 max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-900">
-              {(vehicles||[]).slice(0,8).map(v => (
-                <li key={v.id} className="p-3 bg-slate-800/50 rounded-lg hover:bg-slate-800 border border-slate-700 transition flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-sky-600/20 flex items-center justify-center text-sky-300 text-sm font-bold">
-                      🚗
-                    </div>
-                    <div>
-                      <div className="font-medium text-white text-sm">{v.plateNumber || 'Unknown'}</div>
-                      <div className="text-xs text-slate-400">{v.responder?.name || 'Unassigned'}</div>
+                      <div className="mt-2">
+                        <div className="h-2 bg-slate-100 rounded overflow-hidden">
+                          <div className="h-2 bg-emerald-500" style={{ width: `${Math.min(100, pct)}%` }} />
+                        </div>
+                        <div className="flex items-center gap-3 mt-2 text-xs text-slate-500">
+                          <div className="flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2z"/></svg> {c.contactNumber || 'No contact'}</div>
+                          <div className="flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M3 6h18M3 14h18M3 18h18"/></svg> {c.facilities ? (Array.isArray(c.facilities) ? c.facilities.join(', ') : String(c.facilities)) : 'Facilities unknown'}</div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <span className={`text-xs px-2 py-1 rounded font-medium ${v.active ? 'bg-emerald-600/20 text-emerald-300' : 'bg-slate-600/20 text-slate-300'}`}>{v.active ? 'Active' : 'Inactive'}</span>
+
+                  <div className="mt-3 flex items-center justify-end gap-2">
+                    <button className="px-3 py-1 rounded bg-slate-50 text-sm border" onClick={()=>navigator.clipboard.writeText(`${c.location?.lat},${c.location?.lng}`)}>Copy coords</button>
+                    <button className="px-3 py-1 rounded bg-yellow-50 text-sm border" onClick={()=>{ window.location.hash = '#/evac'; window.dispatchEvent(new CustomEvent('openEvacEdit', { detail: { id: c.id } })) }}>Manage</button>
+                    <button className="px-3 py-1 rounded bg-red-50 text-sm border" onClick={async ()=>{
+                      const confirmClose = window.confirm(`${c.name}: set to ${c.isActive ? 'Closed' : 'Open'}?`)
+                      if(!confirmClose) return
+                      try{
+                        await fetch(`/api/evacuation-centers/${c.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ isActive: !c.isActive }) })
+                        // best-effort local update; global refresh occurs via ws or parent
+                        alert('Updated')
+                      }catch(e){ console.error(e); alert('Failed to update') }
+                    }}>Toggle</button>
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+        <div className="space-y-4">
+          {/* Fleet snapshot panel inside right column */}
+          <div className="bg-white rounded-xl shadow p-4 border border-slate-200 hover:bg-slate-50 transition-all">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-semibold text-slate-800">Vehicles snapshot</h4>
+              <div className="text-sm text-slate-500">{(vehicles||[]).length} vehicles</div>
+            </div>
+            <ul className="space-y-2 max-h-48 overflow-auto">
+              {(vehicles||[]).slice(0,6).map(v => (
+                <li key={v.id} className="p-2 bg-white rounded flex items-center justify-between border border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded bg-slate-100 flex items-center justify-center text-slate-700">
+                      {/* small icon */}
+                      {(() => {
+                        const t = (v.model || '').toLowerCase()
+                        if(t.includes('ambul')) return <svg className="w-4 h-4 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 13v-4h2l2-3h8l2 3h2v4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        if(t.includes('fire')) return <svg className="w-4 h-4 text-orange-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 13h14l2 3v3H3v-6z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        if(t.includes('motor')) return <svg className="w-4 h-4 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12h3l2-3h6l2 3h3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        return <svg className="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12h18" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      })()}
+                    </div>
+                    <div>
+                      <div className="font-medium text-slate-800">{v.plateNumber || '—'} <span className="text-xs text-slate-400">{v.model || 'Unknown'}</span></div>
+                      <div className="text-xs text-slate-500">{v.responder?.name || v.responderId || 'Unassigned'}</div>
+                    </div>
+                  </div>
+                  <div className="text-xs">
+                    <div className={`px-2 py-1 rounded text-xs ${v.active ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600'}`}>{v.active ? 'Active' : 'Inactive'}</div>
+                  </div>
                 </li>
               ))}
             </ul>
