@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import api from '../services/api'
 import { notify } from '../services/toast'
-import { showConfirm } from '../services/confirm'
+import MapView from './MapView'
 
 export default function CitizenLocationShares() {
   const [shares, setShares] = useState([])
@@ -234,7 +234,7 @@ export default function CitizenLocationShares() {
       {/* Map Modal */}
       {showMap && selectedShare && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full">
+          <div className="bg-white rounded-lg p-6 max-w-4xl w-full">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-bold text-gray-800">
                 {selectedShare.userName}'s Location
@@ -250,10 +250,20 @@ export default function CitizenLocationShares() {
               </button>
             </div>
 
-            <div className="bg-gray-100 rounded-lg overflow-hidden mb-4" style={{ height: '400px' }}>
-              <iframe
-                style={{ width: '100%', height: '100%', border: 'none' }}
-                src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyDKmKfZMEqxWvM0BfJM_3QY9fW3xLjcxHI&q=${selectedShare.latitude},${selectedShare.longitude}`}
+            {/* Leaflet Map View */}
+            <div className="rounded-lg overflow-hidden mb-4 bg-gray-100">
+              <MapView 
+                emergencies={selectedShare ? [{
+                  id: selectedShare.id,
+                  type: 'Location Share',
+                  description: `Shared by ${selectedShare.userName}`,
+                  priority: 'medium',
+                  location: { 
+                    lat: selectedShare.latitude, 
+                    lng: selectedShare.longitude 
+                  }
+                }] : []}
+                evacCenters={[]}
               />
             </div>
 
