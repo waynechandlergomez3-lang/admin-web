@@ -234,8 +234,8 @@ export default function CitizenLocationShares() {
       {/* Map Modal */}
       {showMap && selectedShare && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 max-w-4xl w-full">
-            <div className="flex items-center justify-between mb-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between p-6 border-b">
               <h2 className="text-2xl font-bold text-gray-800">
                 {selectedShare.userName}'s Location
               </h2>
@@ -250,49 +250,51 @@ export default function CitizenLocationShares() {
               </button>
             </div>
 
-            {/* Leaflet Map View */}
-            <div className="rounded-lg overflow-hidden mb-4 bg-gray-100">
-              <MapView 
-                emergencies={selectedShare ? [{
-                  id: selectedShare.id,
-                  type: 'Location Share',
-                  description: `Shared by ${selectedShare.userName}`,
-                  priority: 'medium',
-                  location: { 
-                    lat: selectedShare.latitude, 
-                    lng: selectedShare.longitude 
-                  }
-                }] : []}
-                evacCenters={[]}
-              />
+            <div className="overflow-y-auto flex-1 p-6">
+              {/* Leaflet Map View */}
+              <div className="rounded-lg overflow-hidden mb-4 bg-gray-100">
+                <MapView 
+                  emergencies={selectedShare ? [{
+                    id: selectedShare.id,
+                    type: 'Location Share',
+                    description: `Shared by ${selectedShare.userName}`,
+                    priority: 'medium',
+                    location: { 
+                      lat: selectedShare.latitude, 
+                      lng: selectedShare.longitude 
+                    }
+                  }] : []}
+                  evacCenters={[]}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="bg-slate-50 p-4 rounded">
+                  <p className="text-xs text-gray-500 mb-2">Name</p>
+                  <p className="text-sm font-medium text-gray-900">{selectedShare.userName}</p>
+                </div>
+                <div className="bg-slate-50 p-4 rounded">
+                  <p className="text-xs text-gray-500 mb-2">Email</p>
+                  <p className="text-sm font-medium text-gray-900">{selectedShare.userEmail}</p>
+                </div>
+                <div className="bg-slate-50 p-4 rounded">
+                  <p className="text-xs text-gray-500 mb-2">Barangay</p>
+                  <p className="text-sm font-medium text-gray-900">{selectedShare.barangay}</p>
+                </div>
+                <div className="bg-slate-50 p-4 rounded">
+                  <p className="text-xs text-gray-500 mb-2">Last Share</p>
+                  <p className="text-sm font-medium text-gray-900">{new Date(selectedShare.updatedAt).toLocaleString()}</p>
+                </div>
+                <div className="col-span-2 bg-slate-50 p-4 rounded">
+                  <p className="text-xs text-gray-500 mb-2">Coordinates</p>
+                  <p className="text-sm font-mono text-gray-900">
+                    {selectedShare.latitude.toFixed(6)}, {selectedShare.longitude.toFixed(6)}
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div className="bg-slate-50 p-4 rounded">
-                <p className="text-xs text-gray-500 mb-2">Name</p>
-                <p className="text-sm font-medium text-gray-900">{selectedShare.userName}</p>
-              </div>
-              <div className="bg-slate-50 p-4 rounded">
-                <p className="text-xs text-gray-500 mb-2">Email</p>
-                <p className="text-sm font-medium text-gray-900">{selectedShare.userEmail}</p>
-              </div>
-              <div className="bg-slate-50 p-4 rounded">
-                <p className="text-xs text-gray-500 mb-2">Barangay</p>
-                <p className="text-sm font-medium text-gray-900">{selectedShare.barangay}</p>
-              </div>
-              <div className="bg-slate-50 p-4 rounded">
-                <p className="text-xs text-gray-500 mb-2">Last Share</p>
-                <p className="text-sm font-medium text-gray-900">{new Date(selectedShare.updatedAt).toLocaleString()}</p>
-              </div>
-              <div className="col-span-2 bg-slate-50 p-4 rounded">
-                <p className="text-xs text-gray-500 mb-2">Coordinates</p>
-                <p className="text-sm font-mono text-gray-900">
-                  {selectedShare.latitude.toFixed(6)}, {selectedShare.longitude.toFixed(6)}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-2">
+            <div className="flex gap-2 p-6 border-t bg-gray-50">
               <a
                 href={getMapUrl(selectedShare.latitude, selectedShare.longitude)}
                 target="_blank"
