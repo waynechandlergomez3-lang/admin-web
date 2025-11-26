@@ -339,7 +339,6 @@ export default function App(){
                   <Reports />
                 </div>
               )}
-              )}
             </main>
 
             <AssignModal open={assignOpen} emergency={selectedEmergency} onClose={closeAssign} onAssigned={fetchData} />
